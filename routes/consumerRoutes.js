@@ -1,7 +1,8 @@
 const express = require("express");
 const consumerControllers = require("../controllers/consumerControllers");
 const router = express.Router();
-
+const verifyJWT = require("../middleware/verifyJWT");
+router.use(verifyJWT);
 router.get("/", consumerControllers.getConsumers);
 router.post("/createConsumer", consumerControllers.createConsumer);
 router.put("/updateConsumer/:consumerId", consumerControllers.updateConsumer);

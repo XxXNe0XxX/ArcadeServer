@@ -20,6 +20,10 @@ const ArcadeMachine = sequelize.define(
     CreditsPerGame: {
       type: DataTypes.DECIMAL(5, 2),
     },
+    Running: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
   },
   {
     tableName: "ArcadeMachines",

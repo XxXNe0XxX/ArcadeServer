@@ -19,6 +19,22 @@ const Client = sequelize?.define(
     ClientContact: {
       type: DataTypes.STRING,
     },
+    ClientPassword: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    ClientEmail: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    role: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    active: {
+      type: DataTypes.BOOLEAN,
+      default: true,
+    },
   },
   {
     tableName: "Clients",
