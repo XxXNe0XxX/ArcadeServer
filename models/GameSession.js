@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../config/db.js");
 
-const Consumer = require("./Consumer");
+const QRCode = require("./QRCode");
 const ArcadeMachine = require("./ArcadeMachine");
 
 const GameSession = sequelize.define(
@@ -12,10 +12,7 @@ const GameSession = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    CreditsUsed: {
-      type: DataTypes.DECIMAL(5, 2),
-    },
-    SessionDate: {
+    Date: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
@@ -25,7 +22,7 @@ const GameSession = sequelize.define(
   }
 );
 
-GameSession.belongsTo(Consumer, { foreignKey: "ConsumerID" });
+GameSession.belongsTo(QRCode, { foreignKey: "QRCodeID" });
 GameSession.belongsTo(ArcadeMachine, { foreignKey: "MachineID" });
 
 module.exports = GameSession;

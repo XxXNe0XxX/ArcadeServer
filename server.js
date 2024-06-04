@@ -20,18 +20,21 @@ app.use(cors(corsOptions)); // Add corsOptions
 const authRoutes = require("./routes/authRoutes");
 
 const clientRoutes = require("./routes/clientRoutes");
-const consumerRoutes = require("./routes/consumerRoutes");
+const qrCodeRoutes = require("./routes/qrCodeRoutes");
 const arcadeMachineRoutes = require("./routes/arcadeMachineRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
 const gameSessionRoutes = require("./routes/gameSessionRoutes");
+const creditRoutes = require("./routes/creditRoutes");
 
 app.use("/auth", authRoutes);
 
 app.use("/api/clients", clientRoutes);
-app.use("/api/consumers", consumerRoutes);
+app.use("/api/qrCodes", qrCodeRoutes);
 app.use("/api/arcademachines", arcadeMachineRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/gamesessions", gameSessionRoutes);
+app.use("/api/credits", creditRoutes);
+app.use("/api/qr", qrCodeRoutes);
 
 // Global Error Handler. IMPORTANT function params MUST start with err
 app.use((err, req, res, next) => {

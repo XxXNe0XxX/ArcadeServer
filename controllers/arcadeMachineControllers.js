@@ -27,12 +27,15 @@ exports.getArcadeMachine = async (req, res) => {
 
 exports.createArcadeMachine = async (req, res) => {
   try {
-    const { ClientID, MachineLocation, GameName, CreditsPerGame } = req.body;
+    const { clientId, Running, GameName, CreditsPerGame } = req.body;
+    if (!clientId || !GameName || !CreditsPerGame) {
+      res.status(400).json({ message: "Bad request missing fields" });
+    }
     const newMachine = await ArcadeMachine.create({
-      ClientID,
-      MachineLocation,
-      GameName,
-      CreditsPerGame,
+      ClientID: clientId,
+      Running: Running ? Running : false,
+      Game: GameName,
+      CreditsPerGame: CreditsPerGame,
     });
     res.status(201).json(newMachine);
   } catch (error) {
@@ -44,18 +47,22 @@ exports.createArcadeMachine = async (req, res) => {
 exports.updateArcadeMachine = async (req, res) => {
   try {
     const { machineId } = req.params;
-    const { ClientID, MachineLocation, GameName, CreditsPerGame } = req.body;
+    const { ClientID, Game, CreditsPerGame } = req.body;
+
+    if (!machineId || !ClientID || !Game || !CreditsPerGame) {
+      res.status(400).json({ message: "Bad request fields missing" });
+    }
     const machine = await ArcadeMachine.findByPk(machineId);
-    if (machine) {
-      machine.ClientID = ClientID;
-      machine.MachineLocation = MachineLocation;
-      machine.GameName = GameName;
-      machine.CreditsPerGame = CreditsPerGame;
-      await machine.save();
-      res.json(machine);
-    } else {
+    if (!machine) {
       res.status(404).json({ error: "Arcade machine not found" });
     }
+    machine.ClientID = ClientID;
+    machine.Game = Game;
+    machine.CreditsPerGame = CreditsPerGame;
+    await machine.save();
+    res.status(204).json({
+      message: "machine updated successfully",
+    });
   } catch (error) {
     console.error("Error updating arcade machine:", error);
     res.status(500).json({ error: "Database error" });

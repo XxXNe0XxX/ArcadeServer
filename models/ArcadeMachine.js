@@ -11,14 +11,11 @@ const ArcadeMachine = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    MachineLocation: {
-      type: DataTypes.TEXT,
-    },
-    GameName: {
+    Game: {
       type: DataTypes.STRING,
     },
     CreditsPerGame: {
-      type: DataTypes.DECIMAL(5, 2),
+      type: DataTypes.INTEGER,
     },
     Running: {
       type: DataTypes.BOOLEAN,

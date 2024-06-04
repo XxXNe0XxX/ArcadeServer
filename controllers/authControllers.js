@@ -38,13 +38,13 @@ const login = asyncHandler(async (req, res) => {
       },
     },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: "15m" }
+    { expiresIn: "1d" }
   );
 
   const refreshToken = jwt.sign(
     { ClientEmail: foundClient.ClientEmail },
     process.env.REFRESH_TOKEN_SECRET,
-    { expiresIn: "1d" }
+    { expiresIn: "3d" }
   );
 
   // Create secure cookie with refresh token
@@ -85,11 +85,11 @@ const refresh = (req, res) => {
         {
           ClientInfo: {
             ClientEmail: foundClient.ClientEmail,
-            roles: foundClient.roles,
+            role: foundClient.role,
           },
         },
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "15m" }
+        { expiresIn: "1d" }
       );
 
       res.json({ accessToken, role: foundClient.role });

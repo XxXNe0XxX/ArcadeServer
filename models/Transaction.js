@@ -1,8 +1,7 @@
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../config/db.js");
 
-const Consumer = require("./Consumer");
-const ArcadeMachine = require("./ArcadeMachine");
+const Client = require("./Client");
 
 const Transaction = sequelize.define(
   "Transaction",
@@ -12,13 +11,37 @@ const Transaction = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    AmountCharged: {
-      type: DataTypes.DECIMAL(10, 2),
+    Amount_charged: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        isPositive(value) {
+          if (value <= 0) {
+            throw new Error("AmountCharged must be a positive value");
+          }
+        },
+      },
     },
-    CreditsAdded: {
-      type: DataTypes.DECIMAL(10, 2),
+    Currency: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
-    TransactionDate: {
+    Credit_amount: {
+      type: DataTypes.INTEGER,
+      validate: {
+        isPositive(value) {
+          if (value <= 0) {
+            throw new Error("AmountCharged must be a positive value");
+          }
+        },
+      },
+    },
+    Type_of_transaction: {
+      type: DataTypes.ENUM,
+      values: ["ADD", "SUBTRACT"],
+      allowNull: false,
+    },
+    Date: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
@@ -28,7 +51,6 @@ const Transaction = sequelize.define(
   }
 );
 
-Transaction.belongsTo(Consumer, { foreignKey: "ConsumerID" });
-Transaction.belongsTo(ArcadeMachine, { foreignKey: "MachineID" });
+Transaction.belongsTo(Client, { foreignKey: "ClientID" });
 
 module.exports = Transaction;

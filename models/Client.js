@@ -15,9 +15,11 @@ const Client = sequelize?.define(
     },
     ClientAddress: {
       type: DataTypes.TEXT,
+      allowNull: false,
     },
     ClientContact: {
       type: DataTypes.STRING,
+      allowNull: false,
     },
     ClientPassword: {
       type: DataTypes.STRING,
@@ -33,7 +35,11 @@ const Client = sequelize?.define(
     },
     active: {
       type: DataTypes.BOOLEAN,
-      default: true,
+      defaultValue: true,
+    },
+    Credit_balance: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
     },
   },
   {
