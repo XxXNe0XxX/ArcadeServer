@@ -4,12 +4,12 @@ const router = express.Router();
 const verifyJWT = require("../middleware/verifyJWT");
 
 router.post(
-  "/add-credits/:clientId",
+  "/add-credits/:clientEmail",
   verifyJWT(["Admin"]),
   creditControllers.addCredits
 );
 router.post(
-  "/remove-credits/:clientId",
+  "/remove-credits/:clientEmail",
   verifyJWT(["Admin"]),
   creditControllers.removeCredits
 );

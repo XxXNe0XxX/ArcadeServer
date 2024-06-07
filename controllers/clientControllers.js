@@ -70,10 +70,11 @@ exports.createClient = async (req, res) => {
 
 exports.getClient = async (req, res) => {
   try {
-    const { clientId } = req.params;
-    const client = await Client.findByPk(clientId, {
-      // Exclude the password attribute from the result
-      attributes: { exclude: ["ClientPassword"] },
+    const { clientEmail } = req.params;
+    const client = await Client.findOne({
+      where: { ClientEmail: clientEmail },
+
+      attributes: { exclude: ["ClientPassword", "ClientID"] },
     });
 
     if (client) {
@@ -89,13 +90,21 @@ exports.getClient = async (req, res) => {
 
 exports.updateClient = async (req, res) => {
   try {
-    const { clientId } = req.params;
+    const { clientEmail } = req.params;
     const { ClientName, ClientAddress, ClientContact, ClientEmail } = req.body;
-    const client = await Client.findByPk(clientId);
-
-    if (!ClientName && !ClientAddress && !ClientContact && !ClientEmail) {
+    if (
+      !ClientName &&
+      !ClientAddress &&
+      !ClientContact &&
+      !ClientEmail &&
+      !clientEmail
+    ) {
       return res.status(400).json({ error: "Bad request" });
     }
+    const client = await Client.findOne({
+      where: { ClientEmail: clientEmail },
+    });
+
     const updateFields = {};
     if (ClientName) updateFields.ClientName = ClientName;
     if (ClientAddress) updateFields.ClientAddress = ClientAddress;
@@ -116,8 +125,10 @@ exports.updateClient = async (req, res) => {
 
 exports.deleteClient = async (req, res) => {
   try {
-    const { clientId } = req.params;
-    const client = await Client.findByPk(clientId);
+    const { clientEmail } = req.params;
+    const client = await Client.findOne({
+      where: { ClientEmail: clientEmail },
+    });
     if (client) {
       await client.destroy();
       res.json({ message: "Client deleted" });
@@ -147,6 +158,41 @@ exports.deactivateClient = async (req, res) => {
 };
 
 // Client Queries
+
+exports.changePassword = async (req, res) => {
+  const { clientEmail } = req.params;
+  const { currentPassword, newPassword } = req.body;
+
+  try {
+    // Find the client by email
+    const client = await Client.findOne({ where: { clientEmail } });
+    if (!client) {
+      return res.status(404).json({ message: "Client not found" });
+    }
+
+    // Verify the current password
+    const isMatch = await bcrypt.compare(
+      currentPassword,
+      client.ClientPassword
+    );
+    if (!isMatch) {
+      return res.status(400).json({ message: "Incorrect current password" });
+    }
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Update the password in the database
+    client.ClientPassword = hashedPassword;
+    await client.save();
+
+    res.status(200).json({ message: "Password changed successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 
 exports.getMachines = async (req, res) => {
   try {

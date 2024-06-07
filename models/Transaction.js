@@ -16,7 +16,7 @@ const Transaction = sequelize.define(
       allowNull: false,
       validate: {
         isPositive(value) {
-          if (value <= 0) {
+          if (value < 0) {
             throw new Error("AmountCharged must be a positive value");
           }
         },

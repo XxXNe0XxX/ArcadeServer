@@ -5,7 +5,7 @@ const verifyJWT = require("../middleware/verifyJWT");
 // router.use(verifyJWT);
 router.get("/", verifyJWT(["Admin"]), clientControllers.getClients);
 router.get(
-  "/getClient/:clientId",
+  "/getClient/:clientEmail",
   verifyJWT(["Admin", "Client"]),
   clientControllers.getClient
 );
@@ -15,12 +15,12 @@ router.post(
   clientControllers.createClient
 );
 router.put(
-  "/updateClient/:clientId",
+  "/updateClient/:clientEmail",
   verifyJWT(["Admin"]),
   clientControllers.updateClient
 );
 router.delete(
-  "/deleteClient/:clientId",
+  "/deleteClient/:clientEmail",
   verifyJWT(["Admin"]),
   clientControllers.deleteClient
 );
@@ -66,5 +66,10 @@ router.get(
   "/qrcodes/:clientEmail",
   verifyJWT(["Admin", "Client"]),
   clientControllers.getQrCodes
+);
+router.post(
+  "/changePassword/:clientEmail",
+  verifyJWT(["Admin", "Client"]),
+  clientControllers.changePassword
 );
 module.exports = router;
