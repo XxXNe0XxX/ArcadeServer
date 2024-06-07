@@ -49,14 +49,14 @@ app.use((err, req, res, next) => {
 
 // Listen on port
 const PORT = process.env.PORT || 3000;
-const HOST = process.env.NETWORKHOST || "localhost";
+// const HOST = process.env.NETWORKHOST || "localhost";
 app.use(errorHandler);
 
 try {
   authenticateDb().then(
     syncDatabase().then(
       app.listen(PORT, "127.0.0.1", () => {
-        console.log(`----Server running on ${HOST}:${PORT}----`);
+        console.log(`----Server running on :${PORT}----`);
       })
     )
   );
