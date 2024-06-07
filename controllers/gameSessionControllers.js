@@ -31,7 +31,7 @@ exports.createGameSession = async (req, res) => {
   try {
     const { identifier, machineId } = req.body;
     if (!identifier || !machineId) {
-      res.status(400).json({
+      return res.status(400).json({
         message: "Bad request, missing fields: identifier or machineId",
       });
     }
@@ -39,24 +39,23 @@ exports.createGameSession = async (req, res) => {
     const qr = await QRCode.findOne({ where: { Identifier: identifier } });
 
     if (!machine || !qr) {
-      res
+      return res
         .status(404)
         .json({ message: "QR code not found or machine not recognized" });
     }
 
     if (machineId !== qr.ClientID) {
-      res.status(401).json({ message: "QR cannot be used with this machine" });
+      return res
+        .status(401)
+        .json({ message: "QR cannot be used with this machine" });
     }
     if (qr.QRBalance < machine.CreditsPerGame) {
-      res.status(401).json({ message: "Not enough credits" });
+      return res.status(401).json({ message: "Not enough credits" });
     }
     if (!machine.Running) {
-      res.status(401).json({ message: "Machine is not running" });
+      return res.status(401).json({ message: "Machine is not running" });
     }
-    if (
-      machine.ClientID == qr.ClientID &&
-      qr.QRBalance >= machine.CreditsPerGame
-    ) {
+    if (machineId == qr.ClientID && qr.QRBalance >= machine.CreditsPerGame) {
       const newSession = await GameSession.create({
         ClientID: qr.ClientID,
         QRCodeID: qr.QRCodeID,
@@ -65,7 +64,7 @@ exports.createGameSession = async (req, res) => {
       });
       qr.QRBalance -= machine.CreditsPerGame;
       await qr.save();
-      res.status(201).json({
+      return res.status(201).json({
         status: "success",
         newSession,
         message: `Game session created successfully, qr code remaining credits: ${qr.QRBalance}`,
