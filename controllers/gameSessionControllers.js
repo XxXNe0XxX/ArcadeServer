@@ -28,6 +28,7 @@ const QRCode = require("../models/QRCode");
 // };
 
 exports.createGameSession = async (req, res) => {
+  console.log(req.body);
   try {
     const { identifier, machineId } = req.body;
     if (!identifier || !machineId) {
@@ -43,8 +44,7 @@ exports.createGameSession = async (req, res) => {
         .status(404)
         .json({ message: "QR code not found or machine not recognized" });
     }
-
-    if (machineId !== qr.ClientID) {
+    if (machine.ClientID !== qr.ClientID) {
       return res
         .status(401)
         .json({ message: "QR cannot be used with this machine" });
@@ -55,7 +55,10 @@ exports.createGameSession = async (req, res) => {
     if (!machine.Running) {
       return res.status(401).json({ message: "Machine is not running" });
     }
-    if (machineId == qr.ClientID && qr.QRBalance >= machine.CreditsPerGame) {
+    if (
+      machine.ClientID === qr.ClientID &&
+      qr.QRBalance >= machine.CreditsPerGame
+    ) {
       const newSession = await GameSession.create({
         ClientID: qr.ClientID,
         QRCodeID: qr.QRCodeID,

@@ -2,27 +2,24 @@ const Client = require("../models/Client");
 const Transaction = require("../models/Transaction");
 exports.addCredits = async (req, res) => {
   try {
-    const { clientEmail } = req.params;
-    const { CreditAmount, AmountCharged, Currency } = req.body;
-    const client = await Client.findOne({
-      where: { ClientEmail: clientEmail },
-      // attributes: ["Credit_balance", "ClientEmail", "ClientName"],
-      attributes: { exclude: ["ClientPassword"] },
-    });
+    const { clientId } = req.params;
+    const { add, amount, currency } = req.body.formData;
+    const client = await Client.findByPk(clientId);
     if (!client) {
       return res.status(404).json({ error: "Client not found" });
     }
     if (!client.active) {
       res.json({ message: "Client is not active" });
     }
-    client.Credit_balance += CreditAmount;
+
+    client.Credit_balance += +add;
     await client.save();
 
     const transaction = await Transaction.create({
       ClientID: client.ClientID,
-      Amount_charged: AmountCharged,
-      Credit_amount: CreditAmount,
-      Currency: Currency,
+      Amount_charged: amount,
+      Credit_amount: add,
+      Currency: currency,
       Date: new Date(),
       Type_of_transaction: "ADD",
     });
@@ -40,24 +37,20 @@ exports.addCredits = async (req, res) => {
 
 exports.removeCredits = async (req, res) => {
   try {
-    const { clientEmail } = req.params;
-    const { CreditAmount } = req.body;
-    const client = await Client.findOne({
-      where: { ClientEmail: clientEmail },
-      // attributes: ["Credit_balance", "ClientEmail", "ClientName"],
-      attributes: { exclude: ["ClientPassword"] },
-    });
+    const { clientId } = req.params;
+    const { subtract } = req.body.formData;
+    const client = await Client.findByPk(clientId);
     if (!client) {
       return res.status(404).json({ error: "Client not found" });
     }
 
-    client.Credit_balance -= CreditAmount;
+    client.Credit_balance -= +subtract;
     await client.save();
 
     const transaction = await Transaction.create({
       ClientID: client.ClientID,
       Amount_charged: 0,
-      Credit_amount: CreditAmount,
+      Credit_amount: subtract,
       Currency: "deducted",
       Date: new Date(),
       Type_of_transaction: "SUBTRACT",

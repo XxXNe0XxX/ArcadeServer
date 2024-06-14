@@ -17,7 +17,7 @@ const Transaction = sequelize.define(
       validate: {
         isPositive(value) {
           if (value < 0) {
-            throw new Error("AmountCharged must be a positive value");
+            throw new Error("Amount_charged must be a positive value");
           }
         },
       },
@@ -30,20 +30,20 @@ const Transaction = sequelize.define(
       type: DataTypes.INTEGER,
       validate: {
         isPositive(value) {
-          if (value <= 0) {
-            throw new Error("AmountCharged must be a positive value");
+          if (value < 0) {
+            throw new Error("Credit_amount must be a positive value");
           }
         },
       },
     },
     Type_of_transaction: {
       type: DataTypes.ENUM,
-      values: ["ADD", "SUBTRACT"],
+      values: ["ADD", "SUBTRACT", "EXPENSE"],
       allowNull: false,
     },
-    Date: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
+
+    Description: {
+      type: DataTypes.STRING,
     },
   },
   {

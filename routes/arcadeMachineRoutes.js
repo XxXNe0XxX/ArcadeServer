@@ -22,4 +22,27 @@ router.delete(
   verifyJWT(["Admin"]),
   arcadeMachineControllers.deleteArcadeMachine
 );
+router.get(
+  "/toggleArcadeMachine/:machineId",
+  verifyJWT(["Admin"]),
+  arcadeMachineControllers.toggleArcadeMachine
+);
+
+// Statisctics queries
+
+router.get(
+  "/getUsageByDay/:machineId/:date",
+  verifyJWT(["Admin"]),
+  arcadeMachineControllers.getUsageByDay
+);
+router.get(
+  "/getUsageByMonth/:machineId/:yearMonth",
+  verifyJWT(["Admin"]),
+  arcadeMachineControllers.getUsageByMonth
+);
+router.get(
+  "/getUsageByYear/:machineId/:year",
+  verifyJWT(["Admin"]),
+  arcadeMachineControllers.getUsageByYear
+);
 module.exports = router;

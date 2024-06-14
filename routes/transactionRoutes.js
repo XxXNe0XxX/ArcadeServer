@@ -23,5 +23,10 @@ router.get(
   verifyJWT(["Admin", "Client"]),
   transactionControllers.getClientTransactions
 );
+router.post(
+  "/createExpense",
+  verifyJWT(["Admin"]),
+  transactionControllers.createExpense
+);
 
 module.exports = router;

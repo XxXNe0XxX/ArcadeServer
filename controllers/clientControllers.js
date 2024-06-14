@@ -6,6 +6,8 @@ const GameSession = require("../models/GameSession");
 const { Sequelize } = require("sequelize");
 const QRCode = require("../models/QRCode");
 // Starts here
+
+// OK
 exports.getClients = async (req, res) => {
   try {
     const clients = await Client.findAll({
@@ -22,39 +24,31 @@ exports.getClients = async (req, res) => {
   }
 };
 
+// OK
 exports.createClient = async (req, res) => {
+  console.log(req.body.formData);
   try {
-    const {
-      ClientName,
-      ClientAddress,
-      ClientContact,
-      ClientEmail,
-      ClientPassword,
-    } = req.body;
-    if (
-      !ClientName &&
-      !ClientAddress &&
-      !ClientContact &&
-      !ClientEmail &&
-      !ClientPassword
-    ) {
-      return res.status(400).json({ message: "All fields are required" });
+    const { name, password, email, address, contact } = req.body.formData;
+    if (!name && !password && !email && !address && !contact) {
+      return res
+        .status(400)
+        .json({ message: "Bad request: All fields are required" });
     }
     const duplicate = await Client.findOne({
-      where: { ClientEmail },
+      where: { ClientEmail: email },
     });
     if (duplicate) {
       return res
         .status(409)
         .json({ message: "A client with that email already exist" });
     }
-    const hashedPassword = await bcrypt.hash(ClientPassword, 10); // Salt Rounds
+    const hashedPassword = await bcrypt.hash(password, 10); // Salt Rounds
 
     const newClient = await Client.create({
-      ClientName,
-      ClientAddress,
-      ClientContact,
-      ClientEmail,
+      ClientName: name,
+      ClientAddress: address,
+      ClientContact: contact,
+      ClientEmail: email,
       ClientPassword: hashedPassword,
       active: true,
       role: "Client",
@@ -64,6 +58,23 @@ exports.createClient = async (req, res) => {
     });
   } catch (error) {
     console.error("Error creating client:", error);
+    res.status(500).json({ error: "Database error" });
+  }
+};
+
+// OK
+exports.getClientById = async (req, res) => {
+  try {
+    const { clientId } = req.params;
+    const client = await Client.findByPk(clientId);
+
+    if (client) {
+      res.status(200).json(client);
+    } else {
+      res.status(404).json({ error: "Client not found" });
+    }
+  } catch (error) {
+    console.error("Error fetching client:", error);
     res.status(500).json({ error: "Database error" });
   }
 };
@@ -88,29 +99,34 @@ exports.getClient = async (req, res) => {
   }
 };
 
+// OK
 exports.updateClient = async (req, res) => {
   try {
-    const { clientEmail } = req.params;
-    const { ClientName, ClientAddress, ClientContact, ClientEmail } = req.body;
-    if (
-      !ClientName &&
-      !ClientAddress &&
-      !ClientContact &&
-      !ClientEmail &&
-      !clientEmail
-    ) {
+    const { clientId } = req.params;
+    const { name, address, contact, email } = req.body.formData;
+    if (!name && !address && !contact && !email) {
       return res.status(400).json({ error: "Bad request" });
     }
-    const client = await Client.findOne({
-      where: { ClientEmail: clientEmail },
-    });
+    if (!clientId) {
+      return res.status(400).json({ error: "Missing url params" });
+    }
+    const client = await Client.findByPk(clientId);
 
     const updateFields = {};
-    if (ClientName) updateFields.ClientName = ClientName;
-    if (ClientAddress) updateFields.ClientAddress = ClientAddress;
-    if (ClientContact) updateFields.ClientContact = ClientContact;
-    if (ClientEmail) updateFields.ClientEmail = ClientEmail;
-
+    if (name) updateFields.ClientName = name;
+    if (address) updateFields.ClientAddress = address;
+    if (contact) updateFields.ClientContact = contact;
+    if (email) updateFields.ClientEmail = email;
+    if (email) {
+      const duplicate = await Client.findOne({
+        where: { ClientEmail: email },
+      });
+      if (duplicate) {
+        return res
+          .status(409)
+          .json({ message: "A client with that email already exist" });
+      }
+    }
     if (client) {
       await client.update(updateFields);
       res.json({ message: `Client ${client.ClientEmail} updated` });
@@ -123,12 +139,11 @@ exports.updateClient = async (req, res) => {
   }
 };
 
+// OK
 exports.deleteClient = async (req, res) => {
   try {
-    const { clientEmail } = req.params;
-    const client = await Client.findOne({
-      where: { ClientEmail: clientEmail },
-    });
+    const { clientId } = req.params;
+    const client = await Client.findByPk(clientId);
     if (client) {
       await client.destroy();
       res.json({ message: "Client deleted" });
@@ -140,6 +155,7 @@ exports.deleteClient = async (req, res) => {
     res.status(500).json({ error: "Database error" });
   }
 };
+
 exports.deactivateClient = async (req, res) => {
   try {
     const { clientId } = req.params;

@@ -9,18 +9,23 @@ router.get(
   verifyJWT(["Admin", "Client"]),
   clientControllers.getClient
 );
+router.get(
+  "/getClientById/:clientId",
+  verifyJWT(["Admin"]),
+  clientControllers.getClientById
+);
 router.post(
   "/createClient",
   verifyJWT(["Admin"]),
   clientControllers.createClient
 );
 router.put(
-  "/updateClient/:clientEmail",
+  "/updateClient/:clientId",
   verifyJWT(["Admin"]),
   clientControllers.updateClient
 );
 router.delete(
-  "/deleteClient/:clientEmail",
+  "/deleteClient/:clientId",
   verifyJWT(["Admin"]),
   clientControllers.deleteClient
 );

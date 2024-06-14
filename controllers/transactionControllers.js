@@ -63,28 +63,25 @@ exports.getClientTransactions = async (req, res) => {
   }
 };
 
-// exports.createTransaction = async (req, res) => {
-//   try {
-//     const {
-//       ConsumerID,
-//       MachineID,
-//       AmountCharged,
-//       CreditsAdded,
-//       TransactionDate,
-//     } = req.body;
-//     const newTransaction = await Transaction.create({
-//       ConsumerID,
-//       MachineID,
-//       AmountCharged,
-//       CreditsAdded,
-//       TransactionDate,
-//     });
-//     res.status(201).json(newTransaction);
-//   } catch (error) {
-//     console.error("Error creating transaction:", error);
-//     res.status(500).json({ error: "Database error" });
-//   }
-// };
+exports.createExpense = async (req, res) => {
+  try {
+    console.log(req.body);
+    const { ClientID, Amount_charged, Description, Currency } = req.body;
+    const newTransaction = await Transaction.create({
+      ClientID,
+      Date: new Date(),
+      Type_of_transaction: "EXPENSE",
+      Amount_charged: Amount_charged,
+      Currency,
+      Credit_amount: 1,
+      Description,
+    });
+    res.status(201).json(newTransaction);
+  } catch (error) {
+    console.error("Error creating transaction:", error);
+    res.status(500).json({ error: "Database error" });
+  }
+};
 
 // exports.updateTransaction = async (req, res) => {
 //   try {

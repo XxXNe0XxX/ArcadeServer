@@ -25,6 +25,7 @@ const arcadeMachineRoutes = require("./routes/arcadeMachineRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
 const gameSessionRoutes = require("./routes/gameSessionRoutes");
 const creditRoutes = require("./routes/creditRoutes");
+const accountingRoutes = require("./routes/accountingRoutes");
 
 app.use("/auth", authRoutes);
 
@@ -35,6 +36,7 @@ app.use("/api/transactions", transactionRoutes);
 app.use("/api/gamesessions", gameSessionRoutes);
 app.use("/api/credits", creditRoutes);
 app.use("/api/qr", qrCodeRoutes);
+app.use("/api/accounting", accountingRoutes);
 
 // Global Error Handler. IMPORTANT function params MUST start with err
 app.use((err, req, res, next) => {

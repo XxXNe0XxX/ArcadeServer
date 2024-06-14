@@ -44,6 +44,7 @@ const Client = sequelize?.define(
   },
   {
     tableName: "Clients",
+    timestamps: true, // This enables the automatic management of createdAt and updatedAt fields
   }
 );
 
