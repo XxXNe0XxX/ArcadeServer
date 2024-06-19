@@ -4,6 +4,9 @@ exports.addCredits = async (req, res) => {
   try {
     const { clientId } = req.params;
     const { add, amount, currency } = req.body.formData;
+    if (!add || !amount || !currency) {
+      return res.status(400).json({ message: "Bad request: Missing fields." });
+    }
     const client = await Client.findByPk(clientId);
     if (!client) {
       return res.status(404).json({ error: "Client not found" });

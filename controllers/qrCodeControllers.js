@@ -58,8 +58,8 @@ exports.generateQR = async (req, res) => {
 };
 
 exports.getQR = async (req, res) => {
+  console.log(req.body);
   try {
-    console.log(req.body);
     const { identifier } = req.body;
     if (!identifier) {
       res.status(400).json({ message: "identifier field missing" });

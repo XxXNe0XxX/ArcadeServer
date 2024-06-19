@@ -32,8 +32,8 @@ exports.getArcadeMachine = async (req, res) => {
 //OK
 exports.createArcadeMachine = async (req, res) => {
   try {
-    const { email, game, creditsPerGame } = req.body.formData;
-    if (!email || !game || !creditsPerGame) {
+    const { email, game, creditsPerGame, location } = req.body.formData;
+    if (!email || !game || !creditsPerGame || !location) {
       return res.status(400).json({ message: "Bad request missing fields" });
     }
     const client = await Client.findOne({ where: { ClientEmail: email } });
@@ -46,6 +46,7 @@ exports.createArcadeMachine = async (req, res) => {
         Running: false,
         Game: game,
         CreditsPerGame: creditsPerGame,
+        Location: location,
       });
       return res.status(201).json(newMachine);
     }
@@ -58,14 +59,14 @@ exports.createArcadeMachine = async (req, res) => {
 exports.updateArcadeMachine = async (req, res) => {
   try {
     const { machineId } = req.params;
-    const { clientId, game, creditsPerGame } = req.body.formData;
+    const { clientId, game, creditsPerGame, location } = req.body.formData;
 
     if (!machineId) {
       return res
         .status(400)
         .json({ message: "Bad request: Missing url params" });
     }
-    if (!clientId && !game && !creditsPerGame) {
+    if (!clientId && !game && !creditsPerGame && !location) {
       return res.status(400).json({ message: "Bad request: Fields missing" });
     }
     const machine = await ArcadeMachine.findByPk(machineId);
@@ -76,6 +77,7 @@ exports.updateArcadeMachine = async (req, res) => {
     if (clientId) updateFields.ClientID = clientId;
     if (game) updateFields.Game = game;
     if (creditsPerGame) updateFields.CreditsPerGame = creditsPerGame;
+    if (location) updateFields.Location = location;
 
     if (machine) {
       await machine.update(updateFields);

@@ -21,6 +21,9 @@ const ArcadeMachine = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    Location: {
+      type: DataTypes.STRING,
+    },
   },
   {
     tableName: "ArcadeMachines",

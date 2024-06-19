@@ -9,14 +9,18 @@ router.get(
   transactionControllers.getTransaction
 );
 // router.post("/createTransaction", transactionControllers.createTransaction);
-// router.put(
-//   "/updateTransaction/:transactionId",
-//   transactionControllers.updateTransaction
-// );
-// router.delete(
-//   "/deleteTransaction/:transactionId",
-//   transactionControllers.deleteTransaction
-// );
+router.put(
+  "/updateTransaction/:transactionId",
+  verifyJWT(["Admin"]),
+
+  transactionControllers.updateTransaction
+);
+router.delete(
+  "/deleteTransaction/:transactionId",
+  verifyJWT(["Admin"]),
+
+  transactionControllers.deleteTransaction
+);
 
 router.get(
   "/getClientTransactions/:clientEmail",
@@ -24,7 +28,7 @@ router.get(
   transactionControllers.getClientTransactions
 );
 router.post(
-  "/createExpense",
+  "/createExpense/:clientEmail",
   verifyJWT(["Admin"]),
   transactionControllers.createExpense
 );

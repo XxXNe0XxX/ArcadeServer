@@ -26,6 +26,7 @@ const transactionRoutes = require("./routes/transactionRoutes");
 const gameSessionRoutes = require("./routes/gameSessionRoutes");
 const creditRoutes = require("./routes/creditRoutes");
 const accountingRoutes = require("./routes/accountingRoutes");
+const emailRoutes = require("./routes/emailRoutes");
 
 app.use("/auth", authRoutes);
 
@@ -37,6 +38,7 @@ app.use("/api/gamesessions", gameSessionRoutes);
 app.use("/api/credits", creditRoutes);
 app.use("/api/qr", qrCodeRoutes);
 app.use("/api/accounting", accountingRoutes);
+app.use("/api/email", emailRoutes);
 
 // Global Error Handler. IMPORTANT function params MUST start with err
 app.use((err, req, res, next) => {
@@ -57,7 +59,7 @@ app.use(errorHandler);
 try {
   authenticateDb().then(
     syncDatabase().then(
-      app.listen(PORT, "127.0.0.1", () => {
+      app.listen(PORT, () => {
         console.log(`----Server running on :${PORT}----`);
       })
     )
