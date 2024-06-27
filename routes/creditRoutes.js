@@ -2,28 +2,25 @@ const express = require("express");
 const creditControllers = require("../controllers/creditControllers");
 const router = express.Router();
 const verifyJWT = require("../middleware/verifyJWT");
+const { validateAddCredits } = require("../middleware/validateAddCredits");
+const {
+  validateRemoveCredits,
+} = require("../middleware/validateRemoveCredits");
+const validateParams = require("../middleware/validateParams");
 
 router.post(
-  "/add-credits/:clientId",
-  verifyJWT(["Admin"]),
+  "/add/:id",
+  verifyJWT(["ADMIN"]),
+  validateAddCredits,
+  validateParams,
   creditControllers.addCredits
 );
 router.post(
-  "/remove-credits/:clientId",
-  verifyJWT(["Admin"]),
+  "/remove/:id",
+  verifyJWT(["ADMIN"]),
+  validateParams,
+  validateRemoveCredits,
   creditControllers.removeCredits
 );
-// router.get(
-//   "/getTransaction/:transactionId",
-//   creditControllers.getTransactions
-// );
-// router.post("/createTransaction", creditControllers.createTransaction);
-// router.put(
-//   "/updateTransaction/:transactionId",
-//   creditControllers.updateTransaction
-// );
-// router.delete(
-//   "/deleteTransaction/:transactionId",
-//   creditControllers.deleteTransaction
-// );
+
 module.exports = router;

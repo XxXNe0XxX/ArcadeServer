@@ -2,79 +2,78 @@ const express = require("express");
 const clientControllers = require("../controllers/clientControllers");
 const router = express.Router();
 const verifyJWT = require("../middleware/verifyJWT");
-// router.use(verifyJWT);
-router.get("/", verifyJWT(["Admin"]), clientControllers.getClients);
-router.get(
-  "/getClient/:clientEmail",
-  verifyJWT(["Admin", "Client"]),
-  clientControllers.getClient
-);
-router.get(
-  "/getClientById/:clientId",
-  verifyJWT(["Admin"]),
-  clientControllers.getClientById
-);
-router.post(
-  "/createClient",
-  verifyJWT(["Admin"]),
-  clientControllers.createClient
-);
-router.put(
-  "/updateClient/:clientId",
-  verifyJWT(["Admin"]),
-  clientControllers.updateClient
-);
-router.delete(
-  "/deleteClient/:clientId",
-  verifyJWT(["Admin"]),
-  clientControllers.deleteClient
-);
-router.post(
-  "/deactivateClient/:clientId",
-  verifyJWT(["Admin"]),
-  clientControllers.deactivateClient
-);
+const asyncHandler = require("express-async-handler");
+const validateQueries = require("../middleware/validateQueries");
 
-// Client Queries
+// router.get("/", verifyJWT(["ADMIN"]), clientControllers.getClients);
 
 router.get(
-  "/machines/:clientEmail",
-  verifyJWT(["Admin", "Client"]),
-  clientControllers.getMachines
+  "/info",
+  verifyJWT(["ADMIN", "CLIENT"]),
+  asyncHandler(clientControllers.getClientInfo)
+);
+
+router.get(
+  "/machines",
+  verifyJWT(["ADMIN", "CLIENT"]),
+  asyncHandler(clientControllers.getMachines)
 );
 router.get(
-  "/balance/:clientEmail",
-  verifyJWT(["Admin", "Client"]),
-  clientControllers.getBalance
+  "/sessions",
+  verifyJWT(["ADMIN", "CLIENT"]),
+  asyncHandler(clientControllers.getGameSessions)
 );
 router.get(
-  "/profits/:clientEmail",
-  verifyJWT(["Admin", "Client"]),
-  clientControllers.getProfits
+  "/transactions",
+  verifyJWT(["ADMIN", "CLIENT"]),
+  asyncHandler(clientControllers.getTransactions)
 );
 router.get(
-  "/expenses/:clientEmail",
-  verifyJWT(["Admin", "Client"]),
-  clientControllers.getExpenses
-);
-router.get(
-  "/sessions/:clientEmail",
-  verifyJWT(["Admin", "Client"]),
-  clientControllers.getGameSessions
-);
-router.get(
-  "/machinestatistics/:clientEmail",
-  verifyJWT(["Admin", "Client"]),
-  clientControllers.getMachineUsageStatistics
-);
-router.get(
-  "/qrcodes/:clientEmail",
-  verifyJWT(["Admin", "Client"]),
-  clientControllers.getQrCodes
+  "/qrcodes",
+  verifyJWT(["ADMIN", "CLIENT"]),
+  asyncHandler(clientControllers.getQrCodes)
 );
 router.post(
-  "/changePassword/:clientEmail",
-  verifyJWT(["Admin", "Client"]),
-  clientControllers.changePassword
+  "/changePassword",
+  verifyJWT(["ADMIN", "CLIENT"]),
+  asyncHandler(clientControllers.changePassword)
 );
+
+// Statistics
+router.get(
+  "/machinestatistics",
+  verifyJWT(["ADMIN", "CLIENT"]),
+  asyncHandler(clientControllers.getMachineUsageStatistics)
+);
+router.get(
+  "/creditsSold",
+  verifyJWT(["ADMIN", "CLIENT"]),
+  validateQueries,
+  asyncHandler(clientControllers.getTotalCreditsSold)
+);
+router.get(
+  "/revenue",
+  verifyJWT(["ADMIN", "CLIENT"]),
+  validateQueries,
+  asyncHandler(clientControllers.getTotalRevenue)
+);
+router.get(
+  "/profitMargin",
+  verifyJWT(["ADMIN", "CLIENT"]),
+  validateQueries,
+  asyncHandler(clientControllers.getProfitMargin)
+);
+router.get(
+  "/growthRate",
+  verifyJWT(["ADMIN", "CLIENT"]),
+  validateQueries,
+  asyncHandler(clientControllers.getSalesGrowthRate)
+);
+router.get(
+  "/averageCredits",
+  verifyJWT(["ADMIN", "CLIENT"]),
+  validateQueries,
+  asyncHandler(clientControllers.getAverageCreditsSoldPerTransaction)
+);
+
 module.exports = router;

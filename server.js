@@ -27,10 +27,11 @@ const gameSessionRoutes = require("./routes/gameSessionRoutes");
 const creditRoutes = require("./routes/creditRoutes");
 const accountingRoutes = require("./routes/accountingRoutes");
 const emailRoutes = require("./routes/emailRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 app.use("/auth", authRoutes);
 
-app.use("/api/clients", clientRoutes);
+app.use("/api/client", clientRoutes);
 app.use("/api/qrCodes", qrCodeRoutes);
 app.use("/api/arcademachines", arcadeMachineRoutes);
 app.use("/api/transactions", transactionRoutes);
@@ -39,6 +40,7 @@ app.use("/api/credits", creditRoutes);
 app.use("/api/qr", qrCodeRoutes);
 app.use("/api/accounting", accountingRoutes);
 app.use("/api/email", emailRoutes);
+app.use("/api/users", userRoutes);
 
 // Global Error Handler. IMPORTANT function params MUST start with err
 app.use((err, req, res, next) => {

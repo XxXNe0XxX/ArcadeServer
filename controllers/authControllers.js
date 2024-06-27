@@ -1,4 +1,4 @@
-const Client = require("../models/Client");
+const User = require("../models/User");
 
 const bcrypt = require("bcrypt");
 
@@ -8,33 +8,31 @@ const asyncHandler = require("express-async-handler");
 // login
 // route /auth/
 const login = asyncHandler(async (req, res) => {
-  const { ClientEmail, ClientPassword } = req.body;
-
-  console.log(req.body);
-  if (!ClientEmail || !ClientPassword) {
-    return res.status(400).json({ message: "All fields are required" });
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ message: "Todos los campos son requeridos" });
   }
-
-  const foundClient = await Client.findOne({
-    where: { ClientEmail },
+  const foundUser = await User.findOne({
+    where: { Email: email },
   });
 
-  if (!foundClient || !foundClient.active) {
-    return res.status(401).json({ message: "Unauthorized" });
+  if (!foundUser) {
+    return res.status(404).json({ message: "No se encontro el usuario" });
+  }
+  if (!foundUser.Active) {
+    return res.status(401).json({ message: "El usuario no esta activo" });
   }
 
-  const match = await bcrypt.compare(
-    ClientPassword,
-    foundClient.ClientPassword
-  );
+  const match = await bcrypt.compare(password, foundUser.Password);
   // const match = true;
-  if (!match) return res.status(401).json({ message: "Unauthorized" });
+  if (!match) return res.status(401).json({ message: "Contraseña incorrecta" });
 
   const accessToken = jwt.sign(
     {
-      ClientInfo: {
-        ClientEmail: foundClient.ClientEmail,
-        role: foundClient.role,
+      Info: {
+        id: foundUser.UserID,
+        email: foundUser.Email,
+        role: foundUser.Role,
       },
     },
     process.env.ACCESS_TOKEN_SECRET,
@@ -42,7 +40,7 @@ const login = asyncHandler(async (req, res) => {
   );
 
   const refreshToken = jwt.sign(
-    { ClientEmail: foundClient.ClientEmail },
+    { Email: foundUser.Email },
     process.env.REFRESH_TOKEN_SECRET,
     { expiresIn: "3d" }
   );
@@ -56,7 +54,7 @@ const login = asyncHandler(async (req, res) => {
   });
 
   // Send accessToken containing ClientEmail and roles
-  res.json({ accessToken, role: foundClient.role });
+  res.json({ accessToken, role: foundUser.Role });
 });
 
 // @desc Refresh
@@ -64,8 +62,9 @@ const login = asyncHandler(async (req, res) => {
 // @access Public - because access token has expired
 const refresh = (req, res) => {
   const cookies = req.cookies;
-  console.log(cookies);
-  if (!cookies?.jwt) return res.status(401).json({ message: "Unauthorized" });
+  if (!cookies?.jwt) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
 
   const refreshToken = cookies.jwt;
 
@@ -74,25 +73,25 @@ const refresh = (req, res) => {
     process.env.REFRESH_TOKEN_SECRET,
     asyncHandler(async (err, decoded) => {
       if (err) return res.status(403).json({ message: "Forbidden" });
-      const foundClient = await Client.findOne({
-        where: { ClientEmail: decoded.ClientEmail },
+      const foundUser = await User.findOne({
+        where: { Email: decoded.Email },
       });
 
-      if (!foundClient)
-        return res.status(401).json({ message: "Unauthorized" });
+      if (!foundUser) return res.status(401).json({ message: "Unauthorized" });
 
       const accessToken = jwt.sign(
         {
-          ClientInfo: {
-            ClientEmail: foundClient.ClientEmail,
-            role: foundClient.role,
+          Info: {
+            id: foundUser.UserID,
+            email: foundUser.Email,
+            role: foundUser.Role,
           },
         },
         process.env.ACCESS_TOKEN_SECRET,
         { expiresIn: "1d" }
       );
 
-      res.json({ accessToken, role: foundClient.role });
+      res.json({ accessToken, role: foundUser.Role });
     })
   );
 };

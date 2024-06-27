@@ -1,6 +1,5 @@
 const { DataTypes } = require("sequelize");
 const { sequelize } = require("../config/db.js");
-
 const Client = require("./Client");
 
 const ArcadeMachine = sequelize.define(
@@ -27,6 +26,12 @@ const ArcadeMachine = sequelize.define(
   },
   {
     tableName: "ArcadeMachines",
+    timestamps: true,
+    indexes: [
+      {
+        fields: ["ClientID"], // Adding an index on the ClientID field
+      },
+    ],
   }
 );
 

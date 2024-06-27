@@ -2,47 +2,61 @@ const express = require("express");
 const arcadeMachineControllers = require("../controllers/arcadeMachineControllers");
 const router = express.Router();
 const verifyJWT = require("../middleware/verifyJWT");
+const asyncHandler = require("express-async-handler");
+const validateParams = require("../middleware/validateParams");
+const validateMachineUpdate = require("../middleware/validateMachineUpdate");
 router.get("/", arcadeMachineControllers.getArcadeMachines);
+
 router.get(
-  "/getArcadeMachine/:machineId",
-  arcadeMachineControllers.getArcadeMachine
+  "/:id",
+  validateParams,
+  verifyJWT(["ADMIN"]),
+  asyncHandler(arcadeMachineControllers.getArcadeMachine)
 );
+
 router.post(
-  "/createArcadeMachine",
-  verifyJWT(["Admin"]),
-  arcadeMachineControllers.createArcadeMachine
+  "/",
+  verifyJWT(["ADMIN"]),
+  asyncHandler(arcadeMachineControllers.createArcadeMachine)
 );
-router.put(
-  "/updateArcadeMachine/:machineId",
-  verifyJWT(["Admin"]),
-  arcadeMachineControllers.updateArcadeMachine
+
+router.patch(
+  "/:id",
+  verifyJWT(["ADMIN"]),
+  validateParams,
+  validateMachineUpdate,
+  asyncHandler(arcadeMachineControllers.updateArcadeMachine)
 );
+
 router.delete(
-  "/deleteArcadeMachine/:machineId",
-  verifyJWT(["Admin"]),
-  arcadeMachineControllers.deleteArcadeMachine
+  "/:id",
+  verifyJWT(["ADMIN"]),
+  validateParams,
+  asyncHandler(arcadeMachineControllers.deleteArcadeMachine)
 );
+
 router.get(
-  "/toggleArcadeMachine/:machineId",
-  verifyJWT(["Admin"]),
-  arcadeMachineControllers.toggleArcadeMachine
+  "/toggle/:id",
+  verifyJWT(["ADMIN"]),
+  validateParams,
+  asyncHandler(arcadeMachineControllers.toggleArcadeMachine)
 );
 
 // Statisctics queries
 
 router.get(
-  "/getUsageByDay/:machineId/:date",
-  verifyJWT(["Admin"]),
-  arcadeMachineControllers.getUsageByDay
+  "/getUsageByDay/:id/:date",
+  verifyJWT(["ADMIN"]),
+  asyncHandler(arcadeMachineControllers.getUsageByDay)
 );
 router.get(
-  "/getUsageByMonth/:machineId/:yearMonth",
-  verifyJWT(["Admin"]),
-  arcadeMachineControllers.getUsageByMonth
+  "/getUsageByMonth/:id/:yearMonth",
+  verifyJWT(["ADMIN"]),
+  asyncHandler(arcadeMachineControllers.getUsageByMonth)
 );
 router.get(
-  "/getUsageByYear/:machineId/:year",
-  verifyJWT(["Admin"]),
-  arcadeMachineControllers.getUsageByYear
+  "/getUsageByYear/:id/:year",
+  verifyJWT(["ADMIN"]),
+  asyncHandler(arcadeMachineControllers.getUsageByYear)
 );
 module.exports = router;

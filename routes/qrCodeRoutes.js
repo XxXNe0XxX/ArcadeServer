@@ -3,12 +3,30 @@ const qrCodeControllers = require("../controllers/qrCodeControllers");
 const router = express.Router();
 const validateIdentifier = require("../middleware/validateIdentifier");
 const verifyJWT = require("../middleware/verifyJWT");
+const asyncHandler = require("express-async-handler");
+const validateParams = require("../middleware/validateParams");
+
+router.get(
+  "/",
+  verifyJWT(["ADMIN"]),
+  asyncHandler(qrCodeControllers.getAllQrs)
+);
+
 router.post(
   "/generate",
-  verifyJWT(["Admin", "Client"]),
-  qrCodeControllers.generateQR
+  verifyJWT(["ADMIN", "CLIENT"]),
+  asyncHandler(qrCodeControllers.generateQR)
 );
-router.post("/get", validateIdentifier, qrCodeControllers.getQR);
-router.delete("/delete", verifyJWT(["Admin"]), qrCodeControllers.deleteQr);
+router.post(
+  "/recover",
+  validateIdentifier,
+  asyncHandler(qrCodeControllers.getQR)
+);
+router.delete(
+  "/:id",
+  verifyJWT(["ADMIN"]),
+  validateParams,
+  asyncHandler(qrCodeControllers.deleteQr)
+);
 
 module.exports = router;

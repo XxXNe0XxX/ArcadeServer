@@ -2,6 +2,7 @@ const { DataTypes } = require("sequelize");
 const { sequelize } = require("../config/db.js");
 
 const Client = require("./Client");
+const User = require("./User.js");
 
 const Transaction = sequelize.define(
   "Transaction",
@@ -11,7 +12,7 @@ const Transaction = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    Amount_charged: {
+    AmountCharged: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
@@ -23,10 +24,11 @@ const Transaction = sequelize.define(
       },
     },
     Currency: {
-      type: DataTypes.STRING,
+      type: DataTypes.ENUM,
+      values: ["MLC", "USD", "CUP", "DEDUCTED"],
       allowNull: false,
     },
-    Credit_amount: {
+    CreditAmount: {
       type: DataTypes.INTEGER,
       validate: {
         isPositive(value) {
@@ -35,8 +37,9 @@ const Transaction = sequelize.define(
           }
         },
       },
+      allowNull: false,
     },
-    Type_of_transaction: {
+    TypeOfTransaction: {
       type: DataTypes.ENUM,
       values: ["ADD", "SUBTRACT", "EXPENSE"],
       allowNull: false,
@@ -48,9 +51,10 @@ const Transaction = sequelize.define(
   },
   {
     tableName: "Transactions",
+    timestamps: true,
   }
 );
 
-Transaction.belongsTo(Client, { foreignKey: "ClientID" });
+Transaction.belongsTo(User, { foreignKey: "UserID" });
 
 module.exports = Transaction;

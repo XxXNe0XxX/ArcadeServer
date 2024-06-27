@@ -3,136 +3,102 @@ const Client = require("../models/Client");
 const GameSession = require("../models/GameSession");
 const { Op } = require("sequelize");
 const sequelize = require("sequelize");
+const User = require("../models/User");
 
-exports.getArcadeMachines = async (req, res) => {
-  try {
-    const machines = await ArcadeMachine.findAll();
-    res.json(machines);
-  } catch (error) {
-    console.error("Error fetching arcade machines:", error);
-    res.status(500).json({ error: "Database error" });
-  }
-};
-
-exports.getArcadeMachine = async (req, res) => {
-  try {
-    const { machineId } = req.params;
-    const machine = await ArcadeMachine.findByPk(machineId);
-    if (machine) {
-      res.json(machine);
-    } else {
-      res.status(404).json({ error: "Arcade machine not found" });
-    }
-  } catch (error) {
-    console.error("Error fetching arcade machine:", error);
-    res.status(500).json({ error: "Database error" });
-  }
-};
-
-//OK
+// CREATE
 exports.createArcadeMachine = async (req, res) => {
-  try {
-    const { email, game, creditsPerGame, location } = req.body.formData;
-    if (!email || !game || !creditsPerGame || !location) {
-      return res.status(400).json({ message: "Bad request missing fields" });
-    }
-    const client = await Client.findOne({ where: { ClientEmail: email } });
-    if (!client) {
-      return res.status(404).json({ message: "Client not found" });
-    }
-    if (client) {
-      const newMachine = await ArcadeMachine.create({
-        ClientID: client.ClientID,
-        Running: false,
-        Game: game,
-        CreditsPerGame: creditsPerGame,
-        Location: location,
-      });
-      return res.status(201).json(newMachine);
-    }
-  } catch (error) {
-    console.error("Error creating arcade machine:", error);
-    res.status(500).json({ error: "Database error" });
+  const { email, game, creditsPerGame, location } = req.body;
+
+  const user = await User.findOne({ where: { Email: email } });
+  if (!user) {
+    return res.status(404).json({ message: "Client not found" });
+  }
+  const client = await Client.findOne({ where: { UserID: user.UserID } });
+  if (client) {
+    const newMachine = await ArcadeMachine.create({
+      ClientID: client.ClientID,
+      Running: false,
+      Game: game,
+      CreditsPerGame: creditsPerGame || 1,
+      Location: location,
+    });
+    return res.status(201).json(newMachine);
   }
 };
 
+// READ ALL
+exports.getArcadeMachines = async (req, res) => {
+  const machines = await ArcadeMachine.findAll();
+  res.json(machines);
+};
+
+// READ ONE
+exports.getArcadeMachine = async (req, res) => {
+  const { id } = req.params;
+  const machine = await ArcadeMachine.findByPk(id);
+  if (machine) {
+    res.json(machine);
+  } else {
+    res.status(404).json({ error: "Arcade machine not found" });
+  }
+};
+
+// UPDATE
 exports.updateArcadeMachine = async (req, res) => {
-  try {
-    const { machineId } = req.params;
-    const { clientId, game, creditsPerGame, location } = req.body.formData;
+  const { id } = req.params;
+  const { clientID, game, creditsPerGame, location } = req.body;
 
-    if (!machineId) {
-      return res
-        .status(400)
-        .json({ message: "Bad request: Missing url params" });
-    }
-    if (!clientId && !game && !creditsPerGame && !location) {
-      return res.status(400).json({ message: "Bad request: Fields missing" });
-    }
-    const machine = await ArcadeMachine.findByPk(machineId);
-    if (!machine) {
-      return res.status(404).json({ error: "Arcade machine not found" });
-    }
-    const updateFields = {};
-    if (clientId) updateFields.ClientID = clientId;
-    if (game) updateFields.Game = game;
-    if (creditsPerGame) updateFields.CreditsPerGame = creditsPerGame;
-    if (location) updateFields.Location = location;
+  const machine = await ArcadeMachine.findByPk(id);
+  if (!machine) {
+    return res.status(404).json({ error: "Arcade machine not found" });
+  }
+  const updateFields = {};
+  if (clientID) updateFields.ClientID = clientID;
+  if (game) updateFields.Game = game;
+  if (creditsPerGame) updateFields.CreditsPerGame = creditsPerGame;
+  if (location) updateFields.Location = location;
 
-    if (machine) {
-      await machine.update(updateFields);
-      return res.status(204).json({
-        message: "Machine updated successfully",
-      });
-    }
-  } catch (error) {
-    console.error("Error updating arcade machine:", error);
-    res.status(500).json({ error: "Database error" });
+  if (machine) {
+    await machine.update(updateFields);
+    return res.status(204).json({
+      message: "Machine updated successfully",
+    });
+  } else {
+    return res.status(400).json({ message: "Arcade Machine not found" });
   }
 };
 
+// DELETE
 exports.deleteArcadeMachine = async (req, res) => {
-  try {
-    const { machineId } = req.params;
-    const machine = await ArcadeMachine.findByPk(machineId);
-    if (machine) {
-      await machine.destroy();
-      res.json({ message: "Arcade machine deleted" });
-    } else {
-      res.status(404).json({ error: "Arcade machine not found" });
-    }
-  } catch (error) {
-    console.error("Error deleting arcade machine:", error);
-    res.status(500).json({ error: "Database error" });
+  const { id } = req.params;
+  const machine = await ArcadeMachine.findByPk(id);
+  if (machine) {
+    await machine.destroy();
+    res.json({ message: "Arcade machine deleted" });
+  } else {
+    res.status(404).json({ error: "Arcade machine not found" });
   }
 };
 
+// TOGGLE
 exports.toggleArcadeMachine = async (req, res) => {
-  try {
-    const { machineId } = req.params;
+  const { id } = req.params;
 
-    if (!machineId) {
-      res.status(400).json({ message: "Bad request fields missing" });
-    }
-    const machine = await ArcadeMachine.findByPk(machineId);
-    if (!machine) {
-      res.status(404).json({ message: "Machine not found" });
-    }
-    if (machine) {
-      machine.Running = !machine.Running;
-      await machine.save();
-      res.json({
-        status: `${machine.Running ? "activated" : "deactivated"}`,
-        message: `Arcade machine ${
-          machine.Running ? "activated" : "deactivated"
-        }`,
-      });
-    } else {
-      res.status(404).json({ error: "Arcade machine not found" });
-    }
-  } catch (error) {
-    console.error("Error deleting arcade machine:", error);
-    res.status(500).json({ error: "Database error" });
+  const machine = await ArcadeMachine.findByPk(id);
+  if (!machine) {
+    res.status(404).json({ message: "Machine not found" });
+  }
+  if (machine) {
+    machine.Running = !machine.Running;
+    await machine.save();
+    res.json({
+      status: `${machine.Running ? "activated" : "deactivated"}`,
+      message: `Arcade machine ${
+        machine.Running ? "activated" : "deactivated"
+      }`,
+    });
+  } else {
+    res.status(404).json({ error: "Arcade machine not found" });
   }
 };
 
@@ -144,7 +110,7 @@ const aggregateUsageData = async (machineId, dateQuery, groupBy) => {
     ],
     where: {
       MachineID: machineId,
-      Date: dateQuery,
+      createdAt: dateQuery,
     },
     group: ["time_period"],
     order: [["time_period", "ASC"]],
@@ -153,45 +119,50 @@ const aggregateUsageData = async (machineId, dateQuery, groupBy) => {
 
 exports.getUsageByDay = async (req, res) => {
   try {
-    const { machineId, date } = req.params;
+    const { id, date } = req.params;
     const data = await aggregateUsageData(
-      machineId,
-      sequelize.where(sequelize.fn("DATE", sequelize.col("Date")), date),
-      sequelize.fn("HOUR", sequelize.col("Date"))
+      id,
+      sequelize.where(sequelize.fn("DATE", sequelize.col("createdAt")), date),
+      sequelize.fn("HOUR", sequelize.col("createdAt"))
     );
-    res.json(data);
+    return res.json(data);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.log(error);
+
+    return res.status(500).json({ error: error.message });
   }
 };
 exports.getUsageByMonth = async (req, res) => {
   try {
-    const { machineId, yearMonth } = req.params;
+    const { id, yearMonth } = req.params;
     const data = await aggregateUsageData(
-      machineId,
+      id,
       sequelize.where(
-        sequelize.fn("DATE_FORMAT", sequelize.col("Date"), "%Y-%m"),
+        sequelize.fn("DATE_FORMAT", sequelize.col("createdAt"), "%Y-%m"),
         yearMonth
       ),
-      sequelize.fn("DAY", sequelize.col("Date"))
+      sequelize.fn("DAY", sequelize.col("createdAt"))
     );
-    res.json(data);
+    return res.json(data);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.log(error);
+    return res.status(500).json({ error: error.message });
   }
 };
 
 exports.getUsageByYear = async (req, res) => {
   try {
-    const { machineId, year } = req.params;
+    const { id, year } = req.params;
     const data = await aggregateUsageData(
-      machineId,
-      sequelize.where(sequelize.fn("YEAR", sequelize.col("Date")), year),
-      sequelize.fn("MONTH", sequelize.col("Date"))
+      id,
+      sequelize.where(sequelize.fn("YEAR", sequelize.col("createdAt")), year),
+      sequelize.fn("MONTH", sequelize.col("createdAt"))
     );
-    res.json(data);
+    return res.json(data);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.log(error);
+
+    return res.status(500).json({ error: error.message });
   }
 };
 

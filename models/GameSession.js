@@ -12,13 +12,10 @@ const GameSession = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    Date: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
   },
   {
     tableName: "GameSessions",
+    timestamps: true,
   }
 );
 

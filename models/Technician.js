@@ -2,17 +2,13 @@ const { DataTypes } = require("sequelize");
 const { sequelize } = require("../config/db");
 const User = require("./User");
 
-const Client = sequelize?.define(
-  "Client",
+const Technician = sequelize?.define(
+  "Technician",
   {
-    ClientID: {
+    TechnicianID: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
-    },
-    Credit_balance: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0,
     },
     UserID: {
       type: DataTypes.INTEGER,
@@ -23,17 +19,13 @@ const Client = sequelize?.define(
       allowNull: false,
     },
   },
+
   {
-    tableName: "Clients",
-    timestamps: true,
-    indexes: [
-      {
-        fields: ["UserID"], // Adding an index on the UserID field
-      },
-    ],
+    tableName: "Technicians",
+    timestamps: true, // This enables the automatic management of createdAt and updatedAt fields
   }
 );
 
-Client.belongsTo(User, { foreignKey: "UserID" });
+Technician.belongsTo(User, { foreignKey: "UserID" });
 
-module.exports = Client;
+module.exports = Technician;

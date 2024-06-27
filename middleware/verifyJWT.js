@@ -3,8 +3,6 @@ const jwt = require("jsonwebtoken");
 const verifyJWT = (allowedRoles = []) => {
   return (req, res, next) => {
     const authHeader = req.headers.authorization || req.headers.Authorization;
-    console.log(authHeader);
-    console.log(allowedRoles);
     if (!authHeader?.startsWith("Bearer ")) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -18,17 +16,16 @@ const verifyJWT = (allowedRoles = []) => {
       // const hasRole = allowedRoles.some(
       //   (role) => decoded.ClientInfo.role === role
       // );
-      const hasRole = allowedRoles.includes(decoded.ClientInfo.role);
-      console.log(hasRole);
-      console.log(decoded.ClientInfo);
-      console.log(decoded.ClientInfo.ClientEmail);
+      const hasRole = allowedRoles.includes(decoded.Info.role);
+      console.log(decoded.Info.role, allowedRoles);
       if (!hasRole) {
         return res.status(403).json({ message: "Forbidden: Access denied" });
       }
 
       // Attach the user and role information to the request object
-      req.user = decoded.ClientInfo.ClientEmail;
-      req.role = decoded.ClientInfo.role;
+      req.user = decoded.Info.email;
+      req.role = decoded.Info.role;
+      req.id = decoded.Info.id;
       next();
     });
   };

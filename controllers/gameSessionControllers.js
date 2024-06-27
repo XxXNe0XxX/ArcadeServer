@@ -2,15 +2,10 @@ const ArcadeMachine = require("../models/ArcadeMachine");
 const GameSession = require("../models/GameSession");
 const QRCode = require("../models/QRCode");
 
-// exports.getGameSessions = async (req, res) => {
-//   try {
-//     const sessions = await GameSession.findAll();
-//     res.json(sessions);
-//   } catch (error) {
-//     console.error("Error fetching game sessions:", error);
-//     res.status(500).json({ error: "Database error" });
-//   }
-// };
+exports.getSessions = async (req, res) => {
+  const sessions = await GameSession.findAll();
+  return res.json(sessions);
+};
 
 // exports.getGameSession = async (req, res) => {
 //   try {
@@ -28,7 +23,6 @@ const QRCode = require("../models/QRCode");
 // };
 
 exports.createGameSession = async (req, res) => {
-  console.log(req.body);
   try {
     const { identifier, machineId } = req.body;
     if (!identifier || !machineId) {

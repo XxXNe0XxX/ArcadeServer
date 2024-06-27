@@ -21,8 +21,15 @@ const QRCode = sequelize.define(
   },
   {
     tableName: "QRCodes",
+    timestamps: true,
+    indexes: [
+      {
+        fields: ["ClientID"], // Adding an index on the ClientID field
+      },
+    ],
   }
 );
+
 QRCode.belongsTo(Client, { foreignKey: "ClientID" });
 
 module.exports = QRCode;

@@ -2,35 +2,40 @@ const express = require("express");
 const transactionControllers = require("../controllers/transactionControllers");
 const router = express.Router();
 const verifyJWT = require("../middleware/verifyJWT");
-router.get("/", verifyJWT(["Admin"]), transactionControllers.getTransactions);
+const validateParams = require("../middleware/validateParams");
+const { validateExpense } = require("../middleware/validateExpense");
+const {
+  validateUpdateTransaction,
+} = require("../middleware/validateUpdateTransaction");
+const asyncHandler = require("express-async-handler");
+
+router.get("/", verifyJWT(["ADMIN"]), transactionControllers.getTransactions);
 router.get(
-  "/getTransaction/:transactionId",
-  verifyJWT(["Admin", "Client"]),
-  transactionControllers.getTransaction
+  "/:id",
+  verifyJWT(["ADMIN", "CLIENT"]),
+  validateParams,
+  asyncHandler(transactionControllers.getTransaction)
 );
 // router.post("/createTransaction", transactionControllers.createTransaction);
-router.put(
-  "/updateTransaction/:transactionId",
-  verifyJWT(["Admin"]),
-
-  transactionControllers.updateTransaction
+router.patch(
+  "/:id",
+  verifyJWT(["ADMIN"]),
+  validateParams,
+  validateUpdateTransaction,
+  asyncHandler(transactionControllers.updateTransaction)
 );
 router.delete(
-  "/deleteTransaction/:transactionId",
-  verifyJWT(["Admin"]),
-
-  transactionControllers.deleteTransaction
+  "/:id",
+  validateParams,
+  verifyJWT(["ADMIN"]),
+  asyncHandler(transactionControllers.deleteTransaction)
 );
 
-router.get(
-  "/getClientTransactions/:clientEmail",
-  verifyJWT(["Admin", "Client"]),
-  transactionControllers.getClientTransactions
-);
 router.post(
-  "/createExpense/:clientEmail",
-  verifyJWT(["Admin"]),
-  transactionControllers.createExpense
+  "/createExpense",
+  verifyJWT(["ADMIN"]),
+  validateExpense,
+  asyncHandler(transactionControllers.createExpense)
 );
 
 module.exports = router;

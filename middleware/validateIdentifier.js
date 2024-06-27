@@ -1,5 +1,4 @@
 const validateIdentifier = (req, res, next) => {
-  const params = req.params;
   const body = req.body;
 
   if (body.identifier) {
