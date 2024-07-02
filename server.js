@@ -6,7 +6,6 @@ const { logger } = require("./middleware/logger");
 const errorHandler = require("./middleware/errorHandler");
 const cookieParser = require("cookie-parser");
 const { authenticateDb, syncDatabase } = require("./config/db");
-
 // index.js or server.js
 require("./services/fetchExchangeRates");
 const { createFirstAdmin } = require("./initScript");

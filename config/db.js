@@ -2,6 +2,18 @@ const mysql = require("mysql2/promise");
 const { Sequelize } = require("sequelize");
 require("dotenv").config();
 
+const sequelize = new Sequelize(
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
+  {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    dialect: "mysql",
+    logging: console.log,
+    timezone: "America/Havana", // Use UTC timezone to avoid issues
+  }
+);
 const createDatabase = async () => {
   try {
     const connection = await mysql.createConnection(
@@ -22,18 +34,6 @@ const createDatabase = async () => {
   }
 };
 
-const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
-  {
-    host: process.env.DB_HOST,
-    dialect: "mysql",
-    logging: console.log,
-    timezone: "America/Havana", // Set timezone to Cub
-  }
-);
-
 const authenticateDb = async () => {
   try {
     await sequelize.authenticate();
@@ -53,9 +53,13 @@ const syncDatabase = async () => {
 };
 
 const initializeDatabase = async () => {
-  await createDatabase();
-  await authenticateDb();
-  await syncDatabase();
+  try {
+    await createDatabase();
+    await authenticateDb();
+    await syncDatabase();
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 module.exports = {
