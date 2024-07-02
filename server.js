@@ -8,10 +8,11 @@ const cookieParser = require("cookie-parser");
 const { authenticateDb, syncDatabase } = require("./config/db");
 // index.js or server.js
 require("./services/fetchExchangeRates");
+
 const { createFirstAdmin } = require("./initScript");
 createFirstAdmin();
-// const { fetchExchangeRates } = require("./services/exchangeRateService");
-// fetchExchangeRates();
+const { fetchExchangeRates } = require("./services/exchangeRateService");
+fetchExchangeRates();
 const corsOptions = require("./config/corsOptions");
 // Turned off for development
 
