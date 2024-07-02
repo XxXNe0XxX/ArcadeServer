@@ -6,6 +6,26 @@ const { logger } = require("./middleware/logger");
 const errorHandler = require("./middleware/errorHandler");
 const cookieParser = require("cookie-parser");
 const { authenticateDb, syncDatabase } = require("./config/db");
+
+initializeDatabase()
+  .then((connection) => {
+    app.use((req, res, next) => {
+      req.db = connection;
+      next();
+    });
+
+    app.use("/api", require("./routes"));
+
+    const PORT = process.env.PORT || 4000;
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Failed to initialize database connection:", error);
+    process.exit(1);
+  });
+
 // index.js or server.js
 require("./services/fetchExchangeRates");
 const { createFirstAdmin } = require("./initScript");
