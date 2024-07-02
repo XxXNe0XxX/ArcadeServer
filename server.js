@@ -6,7 +6,12 @@ const { logger } = require("./middleware/logger");
 const errorHandler = require("./middleware/errorHandler");
 const cookieParser = require("cookie-parser");
 const { authenticateDb, syncDatabase } = require("./config/db");
-
+// index.js or server.js
+require("./services/fetchExchangeRates");
+const { createFirstAdmin } = require("./initScript");
+createFirstAdmin();
+// const { fetchExchangeRates } = require("./services/exchangeRateService");
+// fetchExchangeRates();
 const corsOptions = require("./config/corsOptions");
 // Turned off for development
 
@@ -28,6 +33,7 @@ const creditRoutes = require("./routes/creditRoutes");
 const accountingRoutes = require("./routes/accountingRoutes");
 const emailRoutes = require("./routes/emailRoutes");
 const userRoutes = require("./routes/userRoutes");
+const exchangeRateRoutes = require("./routes/exchangeRateRoutes");
 
 app.use("/auth", authRoutes);
 
@@ -41,6 +47,7 @@ app.use("/api/qr", qrCodeRoutes);
 app.use("/api/accounting", accountingRoutes);
 app.use("/api/email", emailRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/exchange", exchangeRateRoutes);
 
 // Global Error Handler. IMPORTANT function params MUST start with err
 app.use((err, req, res, next) => {

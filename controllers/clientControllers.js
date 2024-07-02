@@ -203,6 +203,7 @@ exports.getTotalRevenue = async (req, res) => {
 };
 
 exports.getProfitMargin = async (req, res) => {
+  const userId = req.id; // Assuming you attach the user object to the request in your authentication middleware
   const { date, period } = req.query;
 
   const { startDate, endDate } = calculateDateRange(date, period);
@@ -210,42 +211,49 @@ exports.getProfitMargin = async (req, res) => {
   const currencies = ["MLC", "USD", "CUP"];
   const profitMarginByCurrency = [];
 
-  for (const currency of currencies) {
-    const totalRevenue = await Transaction.sum("AmountCharged", {
-      where: {
-        TypeOfTransaction: "SUBTRACT",
-        Currency: currency,
-        createdAt: {
-          [Op.between]: [startDate, endDate],
+  try {
+    for (const currency of currencies) {
+      const totalRevenue = await Transaction.sum("AmountCharged", {
+        where: {
+          UserID: userId,
+          TypeOfTransaction: "SUBTRACT",
+          Currency: currency,
+          createdAt: {
+            [Op.between]: [startDate, endDate],
+          },
         },
-      },
-    });
+      });
 
-    const totalCost = await Transaction.sum("AmountCharged", {
-      where: {
-        TypeOfTransaction: "ADD",
-        Currency: currency,
-        createdAt: {
-          [Op.between]: [startDate, endDate],
+      const totalCost = await Transaction.sum("AmountCharged", {
+        where: {
+          UserID: userId,
+          TypeOfTransaction: "ADD",
+          Currency: currency,
+          createdAt: {
+            [Op.between]: [startDate, endDate],
+          },
         },
-      },
-    });
-    console.log(totalCost);
-    const revenue = totalRevenue || 0;
-    const cost = totalCost || 0;
-    const profitMargin = revenue
-      ? Math.round(((revenue - cost) / revenue) * 100)
-      : 0;
+      });
+      const revenue = totalRevenue || 0;
+      const cost = totalCost || 0;
+      const profitMargin = revenue
+        ? Math.round(((revenue - cost) / revenue) * 100)
+        : 0;
 
-    profitMarginByCurrency.push({
-      currency,
-      profitMargin,
-      cost,
-      revenue,
-    });
+      profitMarginByCurrency.push({
+        currency,
+        revenue,
+        cost,
+        profit: revenue - cost,
+        profitMargin,
+      });
+    }
+
+    return res.status(200).json(profitMarginByCurrency);
+  } catch (error) {
+    console.error("Error calculating profit margin:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
-
-  return res.status(200).json(profitMarginByCurrency);
 };
 
 exports.getSalesGrowthRate = async (req, res) => {
@@ -347,7 +355,6 @@ exports.getAverageCreditsSoldPerTransaction = async (req, res) => {
 
   return res.status(200).json({ averageCreditsSoldPerTransaction });
 };
-// FIX ME
 
 exports.getMachineUsageStatistics = async (req, res) => {
   const clientEmail = req.user;

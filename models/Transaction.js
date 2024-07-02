@@ -48,6 +48,10 @@ const Transaction = sequelize.define(
     Description: {
       type: DataTypes.STRING,
     },
+    ExchangeRate: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+    },
   },
   {
     tableName: "Transactions",

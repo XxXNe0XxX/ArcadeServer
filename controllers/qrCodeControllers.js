@@ -3,7 +3,7 @@ const QRCode = require("../models/QRCode");
 const Transaction = require("../models/Transaction");
 const GameSession = require("../models/GameSession");
 const ArcadeMachine = require("../models/ArcadeMachine");
-
+const ExchangeRate = require("../models/ExchangeRate");
 const { v4: uuidv4 } = require("uuid");
 const QRCodeLib = require("qrcode");
 const User = require("../models/User");
@@ -33,12 +33,19 @@ exports.generateQR = async (req, res) => {
       client.Credit_balance -= creditAmount;
       await client.save();
     }
+    const exchangeRate = await ExchangeRate.findOne({
+      where: { Currency: currency },
+    });
+    if (!exchangeRate) {
+      return res.status(400).json({ error: "Invalid currency" });
+    }
     const transaction = await Transaction.create({
       UserID: client.UserID,
       AmountCharged: amountCharged,
       CreditAmount: creditAmount,
       Currency: currency,
       TypeOfTransaction: "SUBTRACT",
+      ExchangeRate: exchangeRate.Rate,
     });
     const identifier = uuidv4();
 

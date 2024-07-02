@@ -2,7 +2,7 @@ const Transaction = require("../models/Transaction");
 const Client = require("../models/Client");
 const User = require("../models/User");
 const Admin = require("../models/Admin");
-
+const ExchangeRate = require("../models/ExchangeRate");
 // READ ALL
 exports.getTransactions = async (req, res) => {
   const transactions = await Transaction.findAll();
@@ -63,6 +63,12 @@ exports.createExpense = async (req, res) => {
   if (adminEmail) {
     const admin = await User.findOne({ where: { Email: adminEmail } });
     if (admin) {
+      const exchangeRate = await ExchangeRate.findOne({
+        where: { Currency: currency },
+      });
+      if (!exchangeRate) {
+        return res.status(400).json({ error: "Invalid currency" });
+      }
       const expense = await Transaction.create({
         UserID: admin.UserID,
         TypeOfTransaction: "EXPENSE",
@@ -70,6 +76,7 @@ exports.createExpense = async (req, res) => {
         Currency: currency,
         CreditAmount: 1,
         Description: description,
+        ExchangeRate: exchangeRate.Rate,
       });
       return res.status(201).json(expense);
     } else {
@@ -86,6 +93,7 @@ exports.updateTransaction = async (req, res) => {
     creditAmount,
     currency,
     typeOfTransaction,
+    exchangeRate,
     description,
   } = req.body;
 
@@ -94,7 +102,8 @@ exports.updateTransaction = async (req, res) => {
     !creditAmount &&
     !currency &&
     !typeOfTransaction &&
-    !description
+    !description &&
+    !exchangeRate
   ) {
     return res.status(400).json({ message: "Bad request. Missing fields" });
   }
@@ -105,6 +114,7 @@ exports.updateTransaction = async (req, res) => {
   if (currency) updateFields.Currency = currency;
   if (typeOfTransaction) updateFields.TypeOfTransaction = typeOfTransaction;
   if (description) updateFields.Description = description;
+  if (exchangeRate) updateFields.ExchangeRate = exchangeRate;
 
   const transaction = await Transaction.findByPk(id);
   if (transaction) {

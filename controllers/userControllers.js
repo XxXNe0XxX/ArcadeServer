@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const { Sequelize } = require("sequelize");
 const Technician = require("../models/Technician");
 const Client = require("../models/Client");
+const Admin = require("../models/Admin");
 
 //CREATE
 exports.createUser = async (req, res) => {
@@ -121,6 +122,7 @@ exports.deleteUser = async (req, res) => {
     // Add other related models as necessary
     user.Role === "TECHNICIAN" &&
       (await Technician.destroy({ where: { UserID: id } }));
+    user.Role === "ADMIN" && (await Admin.destroy({ where: { UserID: id } }));
 
     await user.destroy();
     res.json({ message: "User deleted" });
