@@ -3,19 +3,23 @@ const { Sequelize } = require("sequelize");
 require("dotenv").config();
 
 const createDatabase = async () => {
-  const connection = await mysql.createConnection(
-    // {
-    // host: process.env.DB_HOST,
-    // user: process.env.DB_USER,
-    // password: process.env.DB_PASSWORD,
-    // }
-    process.env.MYSQL_URL
-  );
+  try {
+    const connection = await mysql.createConnection(
+      // {
+      // host: process.env.DB_HOST,
+      // user: process.env.DB_USER,
+      // password: process.env.DB_PASSWORD,
+      // }
+      process.env.MYSQL_URL
+    );
 
-  await connection.query(
-    `CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME}\`;`
-  );
-  await connection.end();
+    await connection.query(
+      `CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME}\`;`
+    );
+    await connection.end();
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const sequelize = new Sequelize(
