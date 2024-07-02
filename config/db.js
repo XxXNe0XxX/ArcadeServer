@@ -26,7 +26,7 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST,
     dialect: "mysql",
     logging: console.log,
-    timezone: "America/Havana", // Set timezone to
+    timezone: "America/Havana", // Set timezone to Cuba
   }
 );
 
