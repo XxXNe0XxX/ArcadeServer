@@ -5,18 +5,21 @@ const verifyJWT = require("../middleware/verifyJWT");
 const asyncHandler = require("express-async-handler");
 const validateParams = require("../middleware/validateParams");
 const validateMachineUpdate = require("../middleware/validateMachineUpdate");
+const validateMachine = require("../middleware/validateMachine");
+
 router.get("/", arcadeMachineControllers.getArcadeMachines);
 
 router.get(
   "/:id",
-  validateParams,
   verifyJWT(["ADMIN"]),
+  validateParams,
   asyncHandler(arcadeMachineControllers.getArcadeMachine)
 );
 
 router.post(
   "/",
   verifyJWT(["ADMIN"]),
+  validateMachine,
   asyncHandler(arcadeMachineControllers.createArcadeMachine)
 );
 

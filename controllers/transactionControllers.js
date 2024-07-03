@@ -97,17 +97,6 @@ exports.updateTransaction = async (req, res) => {
     description,
   } = req.body;
 
-  if (
-    !amountCharged &&
-    !creditAmount &&
-    !currency &&
-    !typeOfTransaction &&
-    !description &&
-    !exchangeRate
-  ) {
-    return res.status(400).json({ message: "Bad request. Missing fields" });
-  }
-
   const updateFields = {};
   if (amountCharged) updateFields.AmountCharged = amountCharged;
   if (creditAmount) updateFields.CreditAmount = creditAmount;

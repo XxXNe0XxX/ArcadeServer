@@ -159,8 +159,14 @@ exports.getQrCodes = async (req, res) => {
 
 exports.getTotalCreditsSold = async (req, res) => {
   // Helper function
+  const id = req.id;
+
   const { date, period } = req.query;
   const { startDate, endDate } = calculateDateRange(date, period);
+  const user = await User.findByPk(id);
+  if (!user) {
+    return res.json({ message: "User not found" });
+  }
 
   const totalCreditsSold = await Transaction.sum("CreditAmount", {
     where: {
@@ -171,6 +177,7 @@ exports.getTotalCreditsSold = async (req, res) => {
       createdAt: {
         [Op.between]: [startDate, endDate],
       },
+      UserID: user.UserID,
     },
   });
 
@@ -178,6 +185,43 @@ exports.getTotalCreditsSold = async (req, res) => {
     totalCreditsSold: totalCreditsSold || 0,
   });
 };
+
+exports.getAverageCreditsSoldPerTransaction = async (req, res) => {
+  const id = req.id;
+  const user = await User.findByPk(id);
+  if (!user) {
+    return res.json({ message: "User not found" });
+  }
+
+  const { date, period } = req.query;
+  const { startDate, endDate } = calculateDateRange(date, period);
+
+  const totalCreditsSold = await Transaction.sum("CreditAmount", {
+    where: {
+      TypeOfTransaction: "SUBTRACT",
+      createdAt: {
+        [Op.between]: [startDate, endDate],
+      },
+    },
+    UserID: user.UserID,
+  });
+
+  const transactionCount = await Transaction.count({
+    where: {
+      TypeOfTransaction: "SUBTRACT",
+      createdAt: {
+        [Op.between]: [startDate, endDate],
+      },
+    },
+  });
+
+  const averageCreditsSoldPerTransaction = transactionCount
+    ? Math.round(totalCreditsSold / transactionCount)
+    : 0;
+
+  return res.status(200).json({ averageCreditsSoldPerTransaction });
+};
+
 exports.getTotalRevenue = async (req, res) => {
   // Helper function
   const { date, period } = req.query;
@@ -325,35 +369,6 @@ exports.getSalesGrowthRate = async (req, res) => {
     : 0;
 
   return res.status(200).json({ salesGrowthRate });
-};
-
-exports.getAverageCreditsSoldPerTransaction = async (req, res) => {
-  const { date, period } = req.query;
-  const { startDate, endDate } = calculateDateRange(date, period);
-
-  const totalCreditsSold = await Transaction.sum("CreditAmount", {
-    where: {
-      TypeOfTransaction: "SUBTRACT",
-      createdAt: {
-        [Op.between]: [startDate, endDate],
-      },
-    },
-  });
-
-  const transactionCount = await Transaction.count({
-    where: {
-      TypeOfTransaction: "SUBTRACT",
-      createdAt: {
-        [Op.between]: [startDate, endDate],
-      },
-    },
-  });
-
-  const averageCreditsSoldPerTransaction = transactionCount
-    ? Math.round(totalCreditsSold / transactionCount)
-    : 0;
-
-  return res.status(200).json({ averageCreditsSoldPerTransaction });
 };
 
 exports.getMachineUsageStatistics = async (req, res) => {
