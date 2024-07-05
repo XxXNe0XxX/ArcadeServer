@@ -4,7 +4,7 @@ const User = require("../models/User");
 const ExchangeRate = require("../models/ExchangeRate");
 exports.addCredits = async (req, res) => {
   const { id } = req.params;
-  const { add, amount, currency } = req.body;
+  const { add, amount, currency, exchangeRate } = req.body;
 
   const user = await User.findByPk(id);
   if (!user) {
@@ -18,10 +18,10 @@ exports.addCredits = async (req, res) => {
     if (client) {
       client.Credit_balance += +add;
       await client.save();
-      const exchangeRate = await ExchangeRate.findOne({
+      const rate = await ExchangeRate.findOne({
         where: { Currency: currency },
       });
-      if (!exchangeRate) {
+      if (!rate) {
         return res.status(400).json({ error: "Invalid currency" });
       }
       const transaction = await Transaction.create({
@@ -30,7 +30,7 @@ exports.addCredits = async (req, res) => {
         CreditAmount: add,
         Currency: currency,
         TypeOfTransaction: "ADD",
-        ExchangeRate: exchangeRate.Rate,
+        ExchangeRate: exchangeRate || rate.Rate,
       });
 
       return res.json({

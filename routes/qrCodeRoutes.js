@@ -5,6 +5,8 @@ const validateIdentifier = require("../middleware/validateIdentifier");
 const verifyJWT = require("../middleware/verifyJWT");
 const asyncHandler = require("express-async-handler");
 const validateParams = require("../middleware/validateParams");
+const { validateAddCredits } = require("../middleware/validateAddCredits");
+const { validateGenerateQr } = require("../middleware/validateGenerateQr");
 
 router.get(
   "/",
@@ -15,6 +17,7 @@ router.get(
 router.post(
   "/generate",
   verifyJWT(["ADMIN", "CLIENT"]),
+  validateGenerateQr,
   asyncHandler(qrCodeControllers.generateQR)
 );
 router.post(

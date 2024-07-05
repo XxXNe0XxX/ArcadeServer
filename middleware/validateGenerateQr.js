@@ -1,14 +1,14 @@
 const { body, validationResult } = require("express-validator");
 
-const validateAddCredits = [
-  body("add")
+const validateGenerateQr = [
+  body("creditAmount")
     .isInt({ gt: 0 })
     .withMessage("Add must be a positive integer")
     .notEmpty()
     .withMessage("Add is required")
     .toInt(),
 
-  body("amount")
+  body("amountCharged")
     .isFloat({ gt: 0 })
     .withMessage("Amount must be a positive number")
     .notEmpty()
@@ -22,6 +22,7 @@ const validateAddCredits = [
     .notEmpty()
     .withMessage("Currency is required")
     .escape(),
+
   body("exchangeRate")
     .optional()
     .customSanitizer((value) => (value === "" ? null : value)) // Convert empty string to null
@@ -39,5 +40,5 @@ const validateAddCredits = [
 ];
 
 module.exports = {
-  validateAddCredits,
+  validateGenerateQr,
 };

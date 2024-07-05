@@ -70,7 +70,6 @@ exports.generateQR = async (req, res) => {
 };
 
 exports.getQR = async (req, res) => {
-  console.log(req.body);
   try {
     const { identifier } = req.body;
     if (!identifier) {
