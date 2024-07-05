@@ -3,10 +3,26 @@ const Client = require("../models/Client");
 const User = require("../models/User");
 const Admin = require("../models/Admin");
 const ExchangeRate = require("../models/ExchangeRate");
+
+const formatTimestamps = require("../utils/formatDate");
 // READ ALL
 exports.getTransactions = async (req, res) => {
-  const transactions = await Transaction.findAll();
-  return res.json(transactions);
+  const transactions = await Transaction.findAll({
+    include: {
+      model: User,
+      attributes: ["Email"],
+    },
+  });
+  const formattedTransactions = transactions.map((transaction) => {
+    const transactionData = transaction.toJSON();
+    return {
+      ...transactionData,
+      User: transactionData.User,
+      UserID: undefined,
+    };
+  });
+
+  return res.status(200).json(formatTimestamps(formattedTransactions));
 };
 
 // READ ONE

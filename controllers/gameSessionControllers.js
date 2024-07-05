@@ -1,10 +1,20 @@
 const ArcadeMachine = require("../models/ArcadeMachine");
 const GameSession = require("../models/GameSession");
 const QRCode = require("../models/QRCode");
+const formatTimestamps = require("../utils/formatDate");
 
 exports.getSessions = async (req, res) => {
-  const sessions = await GameSession.findAll();
-  return res.json(sessions);
+  const sessions = await GameSession.findAll({
+    attributes: { exclude: ["SessionID"] },
+  });
+  const formattedGameSessions = sessions.map((session) => {
+    const sessionData = session.toJSON();
+    return {
+      ...sessionData,
+    };
+  });
+
+  return res.json(formatTimestamps(formattedGameSessions));
 };
 
 // exports.getGameSession = async (req, res) => {

@@ -8,6 +8,8 @@ const { Op } = require("sequelize");
 const QRCode = require("../models/QRCode");
 const User = require("../models/User");
 const { calculateDateRange } = require("../utils/calculateDateRange");
+const formatTimestamps = require("../utils/formatDate");
+
 // Starts here
 
 // INFO
@@ -61,19 +63,19 @@ exports.getMachines = async (req, res) => {
   const user = await User.findByPk(userId);
   if (!user) {
     return res.status(404).json({ message: "User not found" });
-  } else if (user) {
-    const client = await Client.findOne({
-      where: { UserID: user.UserID },
-    });
-    if (!client) {
-      res.status(404).json({ message: "Client not found" });
-    }
-    const clientId = client.ClientID;
-    const machines = await ArcadeMachine.findAll({
-      where: { ClientID: clientId },
-    });
-    res.status(200).json({ machines: machines });
   }
+  const client = await Client.findOne({
+    where: { UserID: user.UserID },
+  });
+  if (!client) {
+    res.status(404).json({ message: "Client not found" });
+  }
+  const clientId = client.ClientID;
+  const machines = await ArcadeMachine.findAll({
+    where: { ClientID: clientId },
+    attributes: { exclude: ["MachineID", "createdAt", "updatedAt"] },
+  });
+  return res.status(200).json(machines);
 };
 
 exports.getGameSessions = async (req, res) => {
@@ -98,44 +100,44 @@ exports.getGameSessions = async (req, res) => {
     include: [
       {
         model: ArcadeMachine,
-        attributes: {
-          exclude: [
-            "MachineID",
-            "createdAt",
-            "updatedAt",
-            "ClientID",
-            "Location",
-          ],
-        },
+        attributes: ["Game"],
       },
     ],
     where: { MachineID: machineIds },
     attributes: {
-      exclude: ["SessionID", "MachineID"],
+      exclude: ["SessionID"],
     },
   });
-
   if (gameSessions.length === 0) {
     return res.status(404).json({ message: "Sessions not found" });
   }
-  const formattedSessions = gameSessions.map((session) => ({
-    createdAt: session.createdAt,
-    updatedAt: session.updatedAt,
-    QRCodeID: session.QRCodeID,
-    Game: session.ArcadeMachine.Game,
-    CreditsPerGame: session.ArcadeMachine.CreditsPerGame,
-    Running: session.ArcadeMachine.Running,
-  }));
-  return res.status(200).json(formattedSessions);
+  const formattedGameSessions = gameSessions.map((session) => {
+    const sessionData = session.toJSON();
+    return {
+      ...sessionData,
+    };
+  });
+  return res.status(200).json(formatTimestamps(formattedGameSessions));
 };
 
 exports.getTransactions = async (req, res) => {
   const id = req.id;
-  const transactions = await Transaction.findAll({ where: { UserID: id } });
+  const transactions = await Transaction.findAll({
+    where: { UserID: id },
+    attributes: { exclude: ["TransactionID", "UserID"] },
+  });
   if (!transactions) {
     return res.status(404).json({ message: "No Transactions found" });
   }
-  return res.status(200).json(transactions);
+  const formattedTransactions = transactions.map((transaction) => {
+    const transactionData = transaction.toJSON();
+    return {
+      ...transactionData,
+      User: transactionData.User,
+      UserID: undefined,
+    };
+  });
+  return res.status(200).json(formatTimestamps(formattedTransactions));
 };
 
 exports.getQrCodes = async (req, res) => {
@@ -146,9 +148,15 @@ exports.getQrCodes = async (req, res) => {
     if (client) {
       const qrcodes = await QRCode.findAll({
         where: { ClientID: client.ClientID },
+        attributes: { exclude: ["ClientID"] },
       });
-
-      return res.status(200).json(qrcodes);
+      const formattedQrCodes = qrcodes.map((qr) => {
+        const qrData = qr.toJSON();
+        return {
+          ...qrData,
+        };
+      });
+      return res.status(200).json(formatTimestamps(formattedQrCodes));
     } else {
       return res.status(404).json({ message: "Client not found" });
     }
@@ -202,8 +210,8 @@ exports.getAverageCreditsSoldPerTransaction = async (req, res) => {
       createdAt: {
         [Op.between]: [startDate, endDate],
       },
+      UserID: user.UserID,
     },
-    UserID: user.UserID,
   });
 
   const transactionCount = await Transaction.count({
@@ -212,6 +220,7 @@ exports.getAverageCreditsSoldPerTransaction = async (req, res) => {
       createdAt: {
         [Op.between]: [startDate, endDate],
       },
+      UserID: user.UserID,
     },
   });
 
@@ -224,6 +233,8 @@ exports.getAverageCreditsSoldPerTransaction = async (req, res) => {
 
 exports.getTotalRevenue = async (req, res) => {
   // Helper function
+  const userId = req.id; // Assuming you attach the user object to the request in your authentication middleware
+
   const { date, period } = req.query;
   const { startDate, endDate } = calculateDateRange(date, period);
   const currencies = ["MLC", "USD", "CUP"];
@@ -236,6 +247,7 @@ exports.getTotalRevenue = async (req, res) => {
         createdAt: {
           [Op.between]: [startDate, endDate],
         },
+        UserID: userId,
       },
     });
     revenueByCurrency.push({
@@ -247,7 +259,7 @@ exports.getTotalRevenue = async (req, res) => {
 };
 
 exports.getProfitMargin = async (req, res) => {
-  const userId = req.id; // Assuming you attach the user object to the request in your authentication middleware
+  const userId = req.id;
   const { date, period } = req.query;
 
   const { startDate, endDate } = calculateDateRange(date, period);
@@ -302,6 +314,8 @@ exports.getProfitMargin = async (req, res) => {
 
 exports.getSalesGrowthRate = async (req, res) => {
   const { date, period } = req.query;
+  const userId = req.id;
+
   const { startDate, endDate } = calculateDateRange(date, period);
   let prevStartDate, prevEndDate;
 
@@ -349,6 +363,7 @@ exports.getSalesGrowthRate = async (req, res) => {
       createdAt: {
         [Op.between]: [startDate, endDate],
       },
+      UserID: userId,
     },
   });
 

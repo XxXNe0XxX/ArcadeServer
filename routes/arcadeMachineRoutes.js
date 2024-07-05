@@ -8,6 +8,11 @@ const validateMachineUpdate = require("../middleware/validateMachineUpdate");
 const validateMachine = require("../middleware/validateMachine");
 
 router.get("/", arcadeMachineControllers.getArcadeMachines);
+router.get(
+  "/manage",
+  verifyJWT(["ADMIN"]),
+  arcadeMachineControllers.manageArcadeMachines
+);
 
 router.get(
   "/:id",

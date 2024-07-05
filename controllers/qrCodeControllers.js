@@ -7,10 +7,31 @@ const ExchangeRate = require("../models/ExchangeRate");
 const { v4: uuidv4 } = require("uuid");
 const QRCodeLib = require("qrcode");
 const User = require("../models/User");
+const formatTimestamps = require("../utils/formatDate");
 
 exports.getAllQrs = async (req, res) => {
-  const qrcodes = await QRCode.findAll();
-  return res.status(200).json(qrcodes);
+  const qrcodes = await QRCode.findAll({
+    include: {
+      model: Client,
+      attributes: ["UserID"],
+
+      include: {
+        model: User,
+        attributes: ["Email"],
+      },
+    },
+  });
+  const formattedQrCodes = qrcodes.map((qr) => {
+    const qrData = qr.toJSON();
+    return {
+      ...qrData,
+      Client: { UserID: undefined },
+      User: qrData.Client.User.Email,
+      ClientID: undefined, // Remove ClientID field if needed
+    };
+  });
+
+  return res.status(200).json(formatTimestamps(formattedQrCodes));
 };
 
 exports.generateQR = async (req, res) => {

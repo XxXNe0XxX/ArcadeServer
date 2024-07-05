@@ -4,6 +4,7 @@ const GameSession = require("../models/GameSession");
 const { Op } = require("sequelize");
 const sequelize = require("sequelize");
 const User = require("../models/User");
+const formatTimestamps = require("../utils/formatDate");
 
 // CREATE
 exports.createArcadeMachine = async (req, res) => {
@@ -28,8 +29,38 @@ exports.createArcadeMachine = async (req, res) => {
 
 // READ ALL
 exports.getArcadeMachines = async (req, res) => {
-  const machines = await ArcadeMachine.findAll();
-  res.json(machines);
+  const machines = await ArcadeMachine.findAll({
+    attributes: {
+      exclude: ["ClientID", "MachineID", "createdAt", "updatedAt"],
+    },
+  });
+  return res.json(machines);
+};
+
+exports.manageArcadeMachines = async (req, res) => {
+  const machines = await ArcadeMachine.findAll({
+    include: {
+      model: Client,
+      attributes: ["UserID"],
+
+      include: {
+        model: User,
+        attributes: ["Email"],
+      },
+    },
+  });
+
+  const formattedMachines = machines.map((machine) => {
+    const machineData = machine.toJSON();
+    return {
+      ...machineData,
+      Client: { UserID: undefined },
+      User: machineData.Client.User.Email,
+      ClientID: undefined, // Remove ClientID field if needed
+    };
+  });
+
+  return res.status(200).json(formatTimestamps(formattedMachines));
 };
 
 // READ ONE
