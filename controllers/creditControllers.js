@@ -22,7 +22,7 @@ exports.addCredits = async (req, res) => {
         where: { Currency: currency },
       });
       if (!rate) {
-        return res.status(400).json({ error: "Invalid currency" });
+        return res.status(400).json({ error: "Rate not available" });
       }
       const transaction = await Transaction.create({
         UserID: id,

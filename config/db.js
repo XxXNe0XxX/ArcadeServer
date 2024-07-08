@@ -4,7 +4,7 @@ require("dotenv").config();
 
 const sequelize = new Sequelize(process.env.MYSQL_URL, {
   dialectOptions: {
-    useUTC: false,
+    useUTC: true,
   },
 });
 // const sequelize = new Sequelize(

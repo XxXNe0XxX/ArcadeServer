@@ -4,6 +4,7 @@ const { Sequelize } = require("sequelize");
 const Technician = require("../models/Technician");
 const Client = require("../models/Client");
 const Admin = require("../models/Admin");
+const formatTimestamps = require("../utils/formatDate");
 
 //CREATE
 exports.createUser = async (req, res) => {
@@ -57,7 +58,13 @@ exports.getUsers = async (req, res) => {
   if (!users) {
     return res.json({ message: "No se encontro ningun usuario" });
   }
-  return res.json(users);
+  const formattedUsers = users.map((user) => {
+    const userData = user.toJSON();
+    return {
+      ...userData,
+    };
+  });
+  return res.json(formatTimestamps(formattedUsers));
 };
 
 // READ ONE
