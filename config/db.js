@@ -20,6 +20,11 @@ const sequelize = new Sequelize(process.env.MYSQL_URL, {
 //   }
 // );
 const createDatabase = async () => {
+  const databaseUrl = process.env.MYSQL_URL;
+
+  if (!databaseUrl) {
+    throw new Error("DATABASE_URL environment variable is not defined.");
+  }
   try {
     const connection = await mysql.createConnection(
       // {
@@ -27,7 +32,7 @@ const createDatabase = async () => {
       // user: process.env.DB_USER,
       // password: process.env.DB_PASSWORD,
       // }
-      process.env.MYSQL_URL
+      databaseUrl
     );
 
     await connection.query(
