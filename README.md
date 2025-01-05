@@ -9,6 +9,7 @@ A Node.js-based backend that powers an arcade credit system through secure QR co
 - [Features](#features)
 - [Roles](#roles)
 - [Installation & Setup](#installation--setup)
+- [Environment variables](#environment--variables)
 - [Usage](#usage)
 - [Contributing](#contributing)
 - [License](#license)
@@ -85,7 +86,28 @@ yarn install
 Environment Variables
 
 Create a .env file in the project root.
-Include variables for database connection (e.g., DB_HOST, DB_USER, DB_PASS) and JWT configurations (e.g., JWT_SECRET).
+Include variables for database connection and other functionalities
+
+## Environment Variables
+
+NODE_ENV
+PORT
+HOST
+NETWORKHOST
+ACCESS_TOKEN_SECRET
+REFRESH_TOKEN_SECRET
+
+DB_URI
+DB_HOST
+DB_USER
+DB_NAME
+DB_PASSWORD
+DB_PORT
+
+EMAIL
+EMAIL_PASSWORD
+MYSQL_URL
+
 Database Setup
 
 Configure your database credentials in config/config.js (or wherever your Sequelize config is located).
