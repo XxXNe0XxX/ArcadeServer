@@ -80,14 +80,10 @@ This backend provides a secure way to generate and manage QR codes for an arcade
    Install Dependencies
    ```
 
-bash
-Copy code
 npm install
-or
 
-bash
-Copy code
 yarn install
+
 Environment Variables
 
 Create a .env file in the project root.
@@ -117,23 +113,17 @@ Database Setup
 
 Configure your database credentials in config/config.js (or wherever your Sequelize config is located).
 Run migrations (if any) to set up your database schema:
-bash
-Copy code
+
 npx sequelize db:migrate
-or
-bash
-Copy code
+
 yarn sequelize db:migrate
+
 Start the Server
 
-bash
-Copy code
 npm start
-or
 
-bash
-Copy code
 yarn start
+
 By default, it should run on http://localhost:3000 (unless configured otherwise).
 
 Usage
