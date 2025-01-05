@@ -1,5 +1,10 @@
 # Arcade Business Backend
 
+IF the server is online you can visit at:
+https://arcadeclient.onrender.com/
+ALSO you can check the backend at:
+https://github.com/XxXNe0XxX/ArcadeServer
+
 A Node.js-based backend that powers an arcade credit system through secure QR code generation. This system supports multiple user roles (administrators and business owners) to manage QR codes, users, and arcade credit transactions.
 
 ## Table of Contents
@@ -148,3 +153,8 @@ This project is available under the MIT License. Feel free to modify and distrib
 
 Thank you for checking out the Arcade Business Backend!
 If you have any questions, feel free to contact the repository owner or open an issue.
+
+IF the server is online you can visit at:
+https://arcadeclient.onrender.com/
+ALSO you can check the backend at:
+https://github.com/XxXNe0XxX/ArcadeServer
