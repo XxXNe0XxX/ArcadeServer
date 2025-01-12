@@ -112,6 +112,27 @@ exports.getQR = async (req, res) => {
     return res.status(500).json({ error: "Database error" });
   }
 };
+exports.getQRById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ message: "id field missing" });
+    }
+    if (id) {
+      const qr = await QRCode.findOne({
+        where: { QRCodeID: id },
+        attributes: { exclude: ["ClientId"] },
+      });
+      if (!id) {
+        return res.status(404).json({ error: "qr code not found" });
+      }
+      return res.json(qr);
+    }
+  } catch (error) {
+    console.error("Error fetching qr:", error);
+    return res.status(500).json({ error: "Database error" });
+  }
+};
 
 exports.deleteQr = async (req, res) => {
   const { id } = req.params;
@@ -127,5 +148,22 @@ exports.deleteQr = async (req, res) => {
   if (qr) {
     await qr.destroy();
     return res.json({ message: "QR code successfully deleted" });
+  }
+};
+exports.editQr = async (req, res) => {
+  const { id } = req.params;
+  const { balance } = req.body;
+  const qr = await QRCode.findByPk(id);
+  if (!qr) {
+    return res.status(404).json({ message: "QR code not found" });
+  }
+
+  if (qr) {
+    await qr.update({ QRBalance: balance });
+    return res.status(204).json({
+      message: "QR code balance updated successfully",
+    });
+  } else {
+    return res.status(500).json({ error: "Database error" });
   }
 };

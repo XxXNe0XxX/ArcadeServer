@@ -13,6 +13,11 @@ router.get(
   verifyJWT(["ADMIN"]),
   asyncHandler(qrCodeControllers.getAllQrs)
 );
+router.get(
+  "/:id",
+  verifyJWT(["ADMIN"]),
+  asyncHandler(qrCodeControllers.getQRById)
+);
 
 router.post(
   "/generate",
@@ -30,6 +35,12 @@ router.delete(
   verifyJWT(["ADMIN"]),
   validateParams,
   asyncHandler(qrCodeControllers.deleteQr)
+);
+router.patch(
+  "/:id",
+  verifyJWT(["ADMIN"]),
+  validateParams,
+  asyncHandler(qrCodeControllers.editQr)
 );
 
 module.exports = router;
