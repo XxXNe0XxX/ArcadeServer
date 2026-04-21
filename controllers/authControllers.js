@@ -10,22 +10,22 @@ const asyncHandler = require("express-async-handler");
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    return res.status(400).json({ message: "Todos los campos son requeridos" });
+    return res.status(400).json({ message: "All fields are required" });
   }
   const foundUser = await User.findOne({
     where: { Email: email },
   });
 
   if (!foundUser) {
-    return res.status(404).json({ message: "No se encontro el usuario" });
+    return res.status(404).json({ message: "User not found" });
   }
   if (!foundUser.Active) {
-    return res.status(401).json({ message: "El usuario no esta activo" });
+    return res.status(401).json({ message: "Inactive user" });
   }
 
   const match = await bcrypt.compare(password, foundUser.Password);
   // const match = true;
-  if (!match) return res.status(401).json({ message: "Contraseña incorrecta" });
+  if (!match) return res.status(401).json({ message: "Wrong password" });
 
   const accessToken = jwt.sign(
     {
@@ -36,13 +36,13 @@ const login = asyncHandler(async (req, res) => {
       },
     },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: "1d" }
+    { expiresIn: "1d" },
   );
 
   const refreshToken = jwt.sign(
     { Email: foundUser.Email },
     process.env.REFRESH_TOKEN_SECRET,
-    { expiresIn: "3d" }
+    { expiresIn: "3d" },
   );
 
   // Create secure cookie with refresh token
@@ -88,11 +88,11 @@ const refresh = (req, res) => {
           },
         },
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "1d" }
+        { expiresIn: "1d" },
       );
 
       res.json({ accessToken, role: foundUser.Role });
-    })
+    }),
   );
 };
 
